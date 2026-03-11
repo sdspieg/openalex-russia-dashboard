@@ -44,13 +44,38 @@
             background: var(--dark-bg);
         }
 
+        /* Partner Logos Header */
+        .partner-logos {
+            position: fixed;
+            top: 10px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 100;
+        }
+
+        .partner-logos a {
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .partner-logos a:hover {
+            opacity: 1;
+        }
+
+        .partner-logos img {
+            height: 40px;
+            filter: brightness(0) saturate(100%) invert(78%) sepia(61%) saturate(780%) hue-rotate(178deg) brightness(104%) contrast(97%);
+        }
+
         .slide {
             display: none;
             width: 100%;
             height: calc(100vh - 160px); /* Much more space for navigation */
             max-height: calc(100vh - 160px);
-            padding: 30px 40px;
-            padding-bottom: 20px;
+            padding: 70px 40px 20px 40px; /* Added top padding for logos */
             animation: fadeIn 0.5s ease-in;
             position: relative;
             overflow-y: auto; /* Allow scrolling if content is too tall */
@@ -496,6 +521,16 @@
     </style>
 </head>
 <body>
+    <!-- Partner Logos Header -->
+    <div class="partner-logos">
+        <a href="https://hcss.nl" target="_blank" title="The Hague Centre for Strategic Studies">
+            <img src="hcss_logo.svg" alt="HCSS Logo">
+        </a>
+        <a href="https://rubase.org" target="_blank" title="RuBase">
+            <img src="rubase_logo.svg" alt="RuBase Logo">
+        </a>
+    </div>
+
     <div class="slideshow-container">
         <!-- Slide 1: What is OpenAlex -->
         <div class="slide active">
@@ -629,7 +664,7 @@
                         <div style="background: linear-gradient(135deg, var(--dark-accent), rgba(255,165,0,0.2)); border: 3px solid var(--bright-orange); border-radius: 20px; padding: 30px; text-align: center;">
                             <div style="font-size: 4rem; margin-bottom: 20px;">🏛️</div>
                             <div style="font-size: 2.5rem; color: var(--bright-orange); font-weight: 900; margin-bottom: 10px;">ARCADIA FUND</div>
-                            <div style="font-size: 1rem; color: var(--light-gray); margin-bottom: 20px;">UK Charity by Lisbet Rausing & Peter Baldwin<br/>Supporting Cultural Heritage & Open Knowledge</div>
+                            <div style="font-size: 1rem; color: var(--light-gray); margin-bottom: 20px;">UK Charity by Lisbet Rausing (Tetra Pak heiress) & Peter Baldwin (UCLA historian)<br/>Supporting Cultural Heritage & Open Knowledge</div>
                             <div style="display: flex; flex-direction: column; gap: 20px;">
                                 <div>
                                     <div style="font-size: 3rem; color: var(--bright-yellow); font-weight: 900;">$7.5M</div>
@@ -1006,21 +1041,6 @@
                                 EXPLORE DATA →
                             </button>
 
-                            <!-- Partner Logos -->
-                            <div style="margin-top: 60px; display: flex; justify-content: center; gap: 60px; align-items: center;">
-                                <a href="https://hcss.nl" target="_blank" style="text-decoration: none;">
-                                    <div style="text-align: center;">
-                                        <img src="hcss_logo.svg" alt="HCSS Logo" style="height: 60px; filter: brightness(0) saturate(100%) invert(78%) sepia(61%) saturate(780%) hue-rotate(178deg) brightness(104%) contrast(97%);">
-                                        <div style="color: var(--bright-cyan); margin-top: 10px; font-size: 0.9rem;">HCSS</div>
-                                    </div>
-                                </a>
-                                <a href="https://rubase.org" target="_blank" style="text-decoration: none;">
-                                    <div style="text-align: center;">
-                                        <img src="rubase_logo.svg" alt="RuBase Logo" style="height: 60px; filter: brightness(0) saturate(100%) invert(78%) sepia(61%) saturate(780%) hue-rotate(178deg) brightness(104%) contrast(97%);">
-                                        <div style="color: var(--bright-cyan); margin-top: 10px; font-size: 0.9rem;">RuBase</div>
-                                    </div>
-                                </a>
-                            </div>
                         </div>
                     </div>
                 </div>
