@@ -3,7 +3,7 @@
 An interactive presentation and dashboard showcasing the power of OpenAlex for bibliometric analysis, featuring research on Russian foreign, defense, and security policy.
 
 ## Live Demo
-🌐 **[View Live Dashboard](https://sdspieg.github.io/openalex-russia-dashboard/)**
+🌐 **[View Live Dashboard](https://sdspieg.github.io/openalex-russia-dashboard/)** (19 slides including hidden literature & LLM analysis)
 
 ## Project Overview
 
@@ -56,7 +56,11 @@ openalex/
 - **Interactive navigation** with keyboard controls (arrow keys, ESC)
 - **Comparison with competitors** (Dimensions, Scopus, Web of Science)
 - **Live API demonstrations** with real-time queries
+- **Hidden Literature Problem** - 56% of papers only findable via full-text search
+- **Zotero Integration** - Complete workflow for capturing all papers
+- **LLM Analysis Pipeline** - Next workshop steps for corpus annotation
 - **Partner acknowledgments** for HCSS and RuBase projects
+- **Fully responsive design** - Works on laptops, tablets, and mobile devices
 
 ### Analytics Dashboard
 - **6,329 papers analyzed** (1916-2026)
