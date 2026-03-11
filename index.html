@@ -66,10 +66,8 @@
         }
 
         .partner-logos img {
-            height: 60px;
-            background: white;
-            padding: 8px;
-            border-radius: 8px;
+            height: 120px;  /* 2x bigger */
+            filter: brightness(0) invert(1);  /* Make logos white on dark background */
         }
 
         .slide {
@@ -77,7 +75,7 @@
             width: 100%;
             height: calc(100vh - 160px); /* Much more space for navigation */
             max-height: calc(100vh - 160px);
-            padding: 70px 40px 20px 40px; /* Added top padding for logos */
+            padding: 140px 40px 20px 40px; /* More top padding for bigger logos */
             animation: fadeIn 0.5s ease-in;
             position: relative;
             overflow-y: auto; /* Allow scrolling if content is too tall */
@@ -130,11 +128,7 @@
         .query-line {
             margin: 15px 0;
             font-size: 1.4rem;
-            opacity: 1;  /* Changed from 0 to 1 to make visible by default */
-        }
-
-        .slide.active .query-line {
-            animation: typeIn 0.5s forwards;
+            opacity: 1;
         }
 
         @keyframes typeIn {
@@ -513,6 +507,9 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 99;
+            height: 60px;  /* Same height as logo container */
+            display: flex;
+            align-items: center;
             background: linear-gradient(135deg, var(--bright-cyan), var(--bright-purple));
             color: var(--dark-bg);
             border: none;
@@ -790,28 +787,28 @@
 
             <div class="visual-container">
                 <div class="query-builder">
-                    <div class="query-line" style="animation-delay: 0.2s">
+                    <div class="query-line">
                         <span class="query-param">API_ENDPOINT</span><span class="query-operator"> = </span><span class="query-value">"https://api.openalex.org/works"</span>
                     </div>
-                    <div class="query-line" style="animation-delay: 0.4s">
+                    <div class="query-line">
                         <span class="query-param">SEARCH_QUERY</span><span class="query-operator"> = </span>
                     </div>
-                    <div class="query-line" style="animation-delay: 0.6s; margin-left: 40px">
+                    <div class="query-line" style="margin-left: 40px">
                         <span class="query-value">"Russian foreign policy"</span>
                     </div>
-                    <div class="query-line" style="animation-delay: 0.8s; margin-left: 40px">
+                    <div class="query-line" style="margin-left: 40px">
                         <span class="query-operator">OR</span> <span class="query-value">"Russian defense policy"</span>
                     </div>
-                    <div class="query-line" style="animation-delay: 1s; margin-left: 40px">
+                    <div class="query-line" style="margin-left: 40px">
                         <span class="query-operator">OR</span> <span class="query-value">"Russian security policy"</span>
                     </div>
-                    <div class="query-line" style="animation-delay: 1.2s; color: var(--light-gray); font-size: 1rem;">
+                    <div class="query-line" style="color: var(--light-gray); font-size: 1rem;">
                         # Note: Only 3 search terms actually used
                     </div>
-                    <div class="query-line" style="animation-delay: 1.4s">
+                    <div class="query-line">
                         <span class="query-param">NO_YEAR_FILTER</span><span class="query-operator"> = </span><span class="query-value">"All years included"</span>
                     </div>
-                    <div class="query-line" style="animation-delay: 1.6s">
+                    <div class="query-line">
                         <span class="query-param">TYPE</span><span class="query-operator"> = </span><span class="query-value">"article"</span>
                     </div>
                 </div>
