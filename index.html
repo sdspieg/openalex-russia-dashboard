@@ -130,7 +130,10 @@
         .query-line {
             margin: 15px 0;
             font-size: 1.4rem;
-            opacity: 0;
+            opacity: 1;  /* Changed from 0 to 1 to make visible by default */
+        }
+
+        .slide.active .query-line {
             animation: typeIn 0.5s forwards;
         }
 
@@ -505,9 +508,11 @@
         }
 
         .exit-btn {
-            position: absolute;
-            top: 80px;
-            right: 30px;
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99;
             background: linear-gradient(135deg, var(--bright-cyan), var(--bright-purple));
             color: var(--dark-bg);
             border: none;
@@ -804,7 +809,7 @@
                         # Note: Only 3 search terms actually used
                     </div>
                     <div class="query-line" style="animation-delay: 1.4s">
-                        <span class="query-param">FILTER</span><span class="query-operator"> = </span><span class="query-value">"publication_year:2000-2026"</span>
+                        <span class="query-param">NO_YEAR_FILTER</span><span class="query-operator"> = </span><span class="query-value">"All years included"</span>
                     </div>
                     <div class="query-line" style="animation-delay: 1.6s">
                         <span class="query-param">TYPE</span><span class="query-operator"> = </span><span class="query-value">"article"</span>
@@ -965,8 +970,8 @@
                 <div class="validation-list">
                     <div class="validation-item" style="animation-delay: 0.2s;">
                         <span class="check-icon">✓</span>
-                        <span class="validation-text">Valid publication years</span>
-                        <span class="validation-number">2000-2026</span>
+                        <span class="validation-text">Publication year range</span>
+                        <span class="validation-number">1963-2026</span>
                     </div>
 
                     <div class="validation-item" style="animation-delay: 0.5s;">
