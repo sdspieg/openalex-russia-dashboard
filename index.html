@@ -1030,16 +1030,323 @@
             </div>
         </div>
 
-        <!-- Slide 12: Ready for Dashboard -->
+        <!-- Slide 12: The Hidden Literature Problem -->
         <div class="slide">
-            <h2 class="slide-title">Clean Data → Dashboard</h2>
+            <h2 class="slide-title">The Hidden Literature Problem</h2>
+
+            <div class="visual-container">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                    <!-- Visual comparison of search methods -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px;">
+                        <div style="background: var(--dark-accent); border: 2px solid var(--bright-red); border-radius: 20px; padding: 30px; text-align: center;">
+                            <div style="font-size: 1.8rem; color: var(--bright-red); margin-bottom: 20px;">Traditional Search</div>
+                            <div style="font-size: 1.3rem; color: var(--light-gray); margin-bottom: 20px;">Title + Abstract Only</div>
+                            <div style="font-size: 4rem; font-weight: 900; color: var(--bright-red);">2,821</div>
+                            <div style="font-size: 1.5rem; color: var(--bright-red); margin-top: 10px;">44%</div>
+                            <div style="margin-top: 20px; color: var(--light-gray);">Papers Found</div>
+                        </div>
+
+                        <div style="background: var(--dark-accent); border: 2px solid var(--bright-green); border-radius: 20px; padding: 30px; text-align: center;">
+                            <div style="font-size: 1.8rem; color: var(--bright-green); margin-bottom: 20px;">OpenAlex Full-Text</div>
+                            <div style="font-size: 1.3rem; color: var(--light-gray); margin-bottom: 20px;">Title + Abstract + Full-Text</div>
+                            <div style="font-size: 4rem; font-weight: 900; color: var(--bright-green);">6,329</div>
+                            <div style="font-size: 1.5rem; color: var(--bright-green); margin-top: 10px;">100%</div>
+                            <div style="margin-top: 20px; color: var(--light-gray);">Papers Found</div>
+                        </div>
+                    </div>
+
+                    <!-- The hidden portion -->
+                    <div style="background: linear-gradient(135deg, var(--dark-accent), #1a2942); border: 2px solid var(--bright-yellow); border-radius: 20px; padding: 40px; text-align: center;">
+                        <div style="font-size: 2rem; color: var(--bright-yellow); margin-bottom: 20px;">Hidden Literature</div>
+                        <div style="font-size: 5rem; font-weight: 900; color: var(--bright-yellow);">3,508</div>
+                        <div style="font-size: 2rem; color: var(--bright-cyan); margin-top: 20px;">56% of Relevant Papers</div>
+                        <div style="font-size: 1.3rem; color: var(--light-gray); margin-top: 20px; line-height: 1.8;">
+                            Only mentioned in methodology, case studies, <br>
+                            comparative analyses, or body text
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Why Papers Are Hidden -->
+        <div class="slide">
+            <h2 class="slide-title">Why Are They Hidden?</h2>
+
+            <div class="visual-container">
+                <div style="max-width: 1000px; margin: 0 auto;">
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 25px;">
+                        <div style="background: var(--dark-accent); border-left: 5px solid var(--bright-cyan); border-radius: 10px; padding: 25px;">
+                            <div style="font-size: 1.5rem; color: var(--bright-cyan); margin-bottom: 10px;">📊 Comparative Studies</div>
+                            <div style="color: var(--light-gray); font-size: 1.2rem;">Papers comparing multiple countries mention Russian policy in analysis sections</div>
+                        </div>
+
+                        <div style="background: var(--dark-accent); border-left: 5px solid var(--bright-yellow); border-radius: 10px; padding: 25px;">
+                            <div style="font-size: 1.5rem; color: var(--bright-yellow); margin-bottom: 10px;">🔬 Methodology Papers</div>
+                            <div style="color: var(--light-gray); font-size: 1.2rem;">Research methods papers using Russian policy as example cases</div>
+                        </div>
+
+                        <div style="background: var(--dark-accent); border-left: 5px solid var(--bright-green); border-radius: 10px; padding: 25px;">
+                            <div style="font-size: 1.5rem; color: var(--bright-green); margin-bottom: 10px;">📚 Historical Analyses</div>
+                            <div style="color: var(--light-gray); font-size: 1.2rem;">Broader historical works with sections on Russian policy</div>
+                        </div>
+
+                        <div style="background: var(--dark-accent); border-left: 5px solid var(--bright-purple); border-radius: 10px; padding: 25px;">
+                            <div style="font-size: 1.5rem; color: var(--bright-purple); margin-bottom: 10px;">🌍 Regional Studies</div>
+                            <div style="color: var(--light-gray); font-size: 1.2rem;">Area studies mentioning Russian policy in regional context</div>
+                        </div>
+
+                        <div style="background: var(--dark-accent); border-left: 5px solid var(--bright-orange); border-radius: 10px; padding: 25px;">
+                            <div style="font-size: 1.5rem; color: var(--bright-orange); margin-bottom: 10px;">📖 Book Chapters</div>
+                            <div style="color: var(--light-gray); font-size: 1.2rem;">Edited volumes with Russian policy discussed in specific chapters</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: The Zotero Challenge -->
+        <div class="slide">
+            <h2 class="slide-title">The Zotero Challenge</h2>
+
+            <div class="visual-container">
+                <div style="max-width: 1100px; margin: 0 auto;">
+                    <!-- Problem illustration -->
+                    <div style="background: var(--dark-accent); border: 2px solid var(--bright-red); border-radius: 20px; padding: 40px; margin-bottom: 40px;">
+                        <div style="font-size: 2rem; color: var(--bright-red); text-align: center; margin-bottom: 30px;">
+                            ⚠️ Traditional Zotero Import Limitations
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center;">
+                            <div>
+                                <div style="font-size: 3rem;">🔍</div>
+                                <div style="color: var(--bright-cyan); margin-top: 10px;">Browser Extension</div>
+                                <div style="color: var(--light-gray); font-size: 0.9rem; margin-top: 5px;">Only sees visible results</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 3rem;">📑</div>
+                                <div style="color: var(--bright-cyan); margin-top: 10px;">Metadata Matching</div>
+                                <div style="color: var(--light-gray); font-size: 0.9rem; margin-top: 5px;">Relies on titles/abstracts</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 3rem;">❌</div>
+                                <div style="color: var(--bright-cyan); margin-top: 10px;">Result</div>
+                                <div style="color: var(--bright-red); font-size: 0.9rem; margin-top: 5px;">Miss 56% of papers</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Solution -->
+                    <div style="background: var(--dark-accent); border: 2px solid var(--bright-green); border-radius: 20px; padding: 40px;">
+                        <div style="font-size: 2rem; color: var(--bright-green); text-align: center; margin-bottom: 30px;">
+                            ✅ OpenAlex → Zotero Solution
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center;">
+                            <div>
+                                <div style="font-size: 3rem;">🌐</div>
+                                <div style="color: var(--bright-cyan); margin-top: 10px;">API Export</div>
+                                <div style="color: var(--light-gray); font-size: 0.9rem; margin-top: 5px;">Get ALL results</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 3rem;">📄</div>
+                                <div style="color: var(--bright-cyan); margin-top: 10px;">RIS/BibTeX Format</div>
+                                <div style="color: var(--light-gray); font-size: 0.9rem; margin-top: 5px;">Convert to Zotero format</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 3rem;">✨</div>
+                                <div style="color: var(--bright-cyan); margin-top: 10px;">Result</div>
+                                <div style="color: var(--bright-green); font-size: 0.9rem; margin-top: 5px;">Capture 100% of papers</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: The Dual Purpose -->
+        <div class="slide">
+            <h2 class="slide-title">Why We Need Everything: Dual Purpose</h2>
+
+            <div class="visual-container">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+                        <!-- Traditional Purpose -->
+                        <div style="background: linear-gradient(135deg, var(--dark-accent), #1a3355); border: 2px solid var(--bright-cyan); border-radius: 20px; padding: 40px;">
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <div style="font-size: 3rem;">📚</div>
+                                <div style="font-size: 1.8rem; color: var(--bright-cyan); margin-top: 15px;">Reference Management</div>
+                            </div>
+                            <div style="color: var(--light-gray); font-size: 1.1rem; line-height: 1.8;">
+                                <div style="margin-bottom: 15px;">✓ Citations & footnotes</div>
+                                <div style="margin-bottom: 15px;">✓ Bibliographies</div>
+                                <div style="margin-bottom: 15px;">✓ Literature reviews</div>
+                                <div>✓ Academic writing</div>
+                            </div>
+                        </div>
+
+                        <!-- LLM Analysis Purpose -->
+                        <div style="background: linear-gradient(135deg, var(--dark-accent), #552a1a); border: 2px solid var(--bright-yellow); border-radius: 20px; padding: 40px;">
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <div style="font-size: 3rem;">🤖</div>
+                                <div style="font-size: 1.8rem; color: var(--bright-yellow); margin-top: 15px;">LLM Corpus Analysis</div>
+                            </div>
+                            <div style="color: var(--light-gray); font-size: 1.1rem; line-height: 1.8;">
+                                <div style="margin-bottom: 15px;">✓ Full-text processing</div>
+                                <div style="margin-bottom: 15px;">✓ Pattern discovery</div>
+                                <div style="margin-bottom: 15px;">✓ Taxonomic annotation</div>
+                                <div>✓ Knowledge graphs</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Precision × Recall -->
+                    <div style="background: var(--dark-accent); border: 2px solid var(--bright-green); border-radius: 20px; padding: 30px; margin-top: 30px; text-align: center;">
+                        <div style="font-size: 2rem; color: var(--bright-green); margin-bottom: 15px;">
+                            Precision × Recall = Comprehensive Corpus
+                        </div>
+                        <div style="font-size: 1.3rem; color: var(--light-gray);">
+                            Maximum relevant papers × Minimum noise = Optimal LLM training data
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Next Workshop Steps -->
+        <div class="slide">
+            <h2 class="slide-title">Next Workshop Sessions: LLM-Powered Analysis</h2>
+
+            <div class="visual-container">
+                <div style="max-width: 1100px; margin: 0 auto;">
+                    <!-- Session 2 -->
+                    <div style="background: linear-gradient(135deg, var(--dark-accent), #2a1a55); border: 2px solid var(--bright-purple); border-radius: 20px; padding: 35px; margin-bottom: 30px;">
+                        <div style="display: flex; align-items: center; gap: 30px;">
+                            <div style="font-size: 4rem; color: var(--bright-purple);">2</div>
+                            <div style="flex: 1;">
+                                <div style="font-size: 1.8rem; color: var(--bright-purple); margin-bottom: 15px;">
+                                    Building Rich Taxonomies with LLMs
+                                </div>
+                                <div style="color: var(--light-gray); font-size: 1.1rem; line-height: 1.6;">
+                                    • Multi-level classification systems<br>
+                                    • Multiple perspectives (theoretical, methodological, thematic)<br>
+                                    • Emergent categories from 6,196 papers<br>
+                                    • LLM-suggested hierarchies
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Session 3 -->
+                    <div style="background: linear-gradient(135deg, var(--dark-accent), #1a552a); border: 2px solid var(--bright-green); border-radius: 20px; padding: 35px;">
+                        <div style="display: flex; align-items: center; gap: 30px;">
+                            <div style="font-size: 4rem; color: var(--bright-green);">3</div>
+                            <div style="flex: 1;">
+                                <div style="font-size: 1.8rem; color: var(--bright-green); margin-bottom: 15px;">
+                                    Intelligent Corpus Annotation
+                                </div>
+                                <div style="color: var(--light-gray); font-size: 1.1rem; line-height: 1.6;">
+                                    • Chunk documents into segments<br>
+                                    • Apply taxonomic labels via LLMs<br>
+                                    • Create knowledge graphs<br>
+                                    • Discover hidden connections
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- The Power -->
+                    <div style="text-align: center; margin-top: 40px;">
+                        <div style="font-size: 1.8rem; color: var(--bright-cyan);">
+                            From <span style="color: var(--bright-yellow); font-weight: 900;">6,196 papers</span> →
+                            <span style="color: var(--bright-green); font-weight: 900;">Structured knowledge</span>
+                        </div>
+                        <div style="font-size: 1.3rem; color: var(--light-gray); margin-top: 15px;">
+                            Including the 3,508 "hidden" papers only findable via full-text search
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Integration Workflow -->
+        <div class="slide">
+            <h2 class="slide-title">OpenAlex → Zotero + LLM Workflow</h2>
+
+            <div class="visual-container">
+                <div style="max-width: 1000px; margin: 0 auto;">
+                    <!-- Step by step process -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; position: relative;">
+                        <!-- Step 1 -->
+                        <div style="text-align: center; z-index: 2;">
+                            <div style="width: 120px; height: 120px; background: var(--bright-cyan); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 3rem; color: var(--dark-bg);">
+                                1
+                            </div>
+                            <div style="color: var(--bright-cyan); margin-top: 15px; font-size: 1.3rem;">Search OpenAlex</div>
+                            <div style="color: var(--light-gray); font-size: 0.9rem; margin-top: 5px;">Full-text query</div>
+                        </div>
+
+                        <!-- Arrow -->
+                        <div style="flex: 1; height: 4px; background: linear-gradient(90deg, var(--bright-cyan), var(--bright-yellow)); margin: 0 20px;"></div>
+
+                        <!-- Step 2 -->
+                        <div style="text-align: center; z-index: 2;">
+                            <div style="width: 120px; height: 120px; background: var(--bright-yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 3rem; color: var(--dark-bg);">
+                                2
+                            </div>
+                            <div style="color: var(--bright-yellow); margin-top: 15px; font-size: 1.3rem;">Export Results</div>
+                            <div style="color: var(--light-gray); font-size: 0.9rem; margin-top: 5px;">Python script</div>
+                        </div>
+
+                        <!-- Arrow -->
+                        <div style="flex: 1; height: 4px; background: linear-gradient(90deg, var(--bright-yellow), var(--bright-green)); margin: 0 20px;"></div>
+
+                        <!-- Step 3 -->
+                        <div style="text-align: center; z-index: 2;">
+                            <div style="width: 120px; height: 120px; background: var(--bright-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 3rem; color: var(--dark-bg);">
+                                3
+                            </div>
+                            <div style="color: var(--bright-green); margin-top: 15px; font-size: 1.3rem;">Convert Format</div>
+                            <div style="color: var(--light-gray); font-size: 0.9rem; margin-top: 5px;">RIS/BibTeX</div>
+                        </div>
+
+                        <!-- Arrow -->
+                        <div style="flex: 1; height: 4px; background: linear-gradient(90deg, var(--bright-green), var(--bright-purple)); margin: 0 20px;"></div>
+
+                        <!-- Step 4 -->
+                        <div style="text-align: center; z-index: 2;">
+                            <div style="width: 120px; height: 120px; background: var(--bright-purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 3rem; color: var(--dark-bg);">
+                                4
+                            </div>
+                            <div style="color: var(--bright-purple); margin-top: 15px; font-size: 1.3rem;">Import Zotero</div>
+                            <div style="color: var(--light-gray); font-size: 0.9rem; margin-top: 5px;">File → Import</div>
+                        </div>
+                    </div>
+
+                    <!-- Dual output -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 40px;">
+                        <div style="background: var(--dark-accent); border: 2px solid var(--bright-cyan); border-radius: 10px; padding: 20px; text-align: center;">
+                            <div style="font-size: 1.5rem; color: var(--bright-cyan); margin-bottom: 10px;">📚 Zotero Library</div>
+                            <div style="color: var(--light-gray);">6,196 references<br>Ready for citations</div>
+                        </div>
+                        <div style="background: var(--dark-accent); border: 2px solid var(--bright-yellow); border-radius: 10px; padding: 20px; text-align: center;">
+                            <div style="font-size: 1.5rem; color: var(--bright-yellow); margin-bottom: 10px;">🤖 LLM Corpus</div>
+                            <div style="color: var(--light-gray);">Full-text documents<br>Ready for analysis</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18: Ready for Dashboard -->
+        <div class="slide">
+            <h2 class="slide-title">Complete Dataset Ready</h2>
 
             <div class="visual-container">
                 <div style="text-align: center;">
                     <div class="data-source" style="width: 400px; height: 400px; margin: 0 auto;">
                         <div style="position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                             <div style="font-size: 5rem; font-weight: 900; color: var(--bright-yellow); margin-bottom: 20px;">6,196</div>
-                            <div style="font-size: 1.5rem; color: var(--bright-cyan); margin-bottom: 30px;">Clean Papers Ready</div>
+                            <div style="font-size: 1.5rem; color: var(--bright-cyan); margin-bottom: 10px;">Clean Papers Ready</div>
+                            <div style="font-size: 1.2rem; color: var(--bright-green); margin-bottom: 30px;">Including 3,508 Hidden Papers</div>
                             <button class="nav-btn" style="font-size: 1.5rem; padding: 20px 50px; background: var(--bright-cyan); color: var(--dark-bg); z-index: 10;" onclick="window.location.href='dashboard.html'">
                                 EXPLORE DATA →
                             </button>
