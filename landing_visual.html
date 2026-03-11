@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russian Policy Research Dashboard - Introduction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Titillium Web', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0a192f;
+            color: #f8fafc;
+            overflow: hidden;
+            position: relative;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700;900&display=swap');
+
+        :root {
+            --dark-bg: #0a192f;
+            --bright-cyan: #00ffff;
+            --bright-white: #ffffff;
+            --light-gray: #c8c8c8;
+            --bright-yellow: #ffff00;
+            --bright-green: #00ff7f;
+            --bright-red: #ff6347;
+            --bright-orange: #ffa500;
+            --bright-purple: #9370db;
+            --dark-accent: #142847;
+        }
+
+        .slideshow-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--dark-bg);
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            height: 85vh;
+            padding: 40px;
+            padding-bottom: 100px;
+            animation: fadeIn 0.5s ease-in;
+            position: relative;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--bright-cyan);
+            margin-bottom: 30px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .visual-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Animated circular stats */
+        .circular-stats {
+            display: flex;
+            gap: 80px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .circular-stat {
+            position: relative;
+            width: 250px;
+            height: 250px;
+        }
+
+        .circular-stat svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .circular-stat circle {
+            fill: none;
+            stroke-width: 20;
+        }
+
+        .circular-stat .background {
+            stroke: var(--dark-accent);
+        }
+
+        .circular-stat .progress {
+            stroke: var(--bright-cyan);
+            stroke-dasharray: 628;
+            stroke-dashoffset: 628;
+            animation: fillCircle 2s ease-in-out forwards;
+        }
+
+        @keyframes fillCircle {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .stat-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--bright-yellow);
+            text-shadow: 0 0 15px rgba(255, 255, 0, 0.5);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--light-gray);
+            text-transform: uppercase;
+        }
+
+        /* Animated pipeline */
+        .pipeline-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .pipeline-node {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, var(--bright-cyan), var(--dark-accent));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.5);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .pipeline-arrow {
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--bright-cyan), transparent);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pipeline-arrow::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--bright-yellow), transparent);
+            animation: flowArrow 2s infinite;
+        }
+
+        @keyframes flowArrow {
+            to { left: 100%; }
+        }
+
+        .pipeline-icon {
+            font-size: 4rem;
+        }
+
+        /* Word cloud visualization */
+        .word-cloud {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .word {
+            position: absolute;
+            font-weight: 700;
+            animation: float 10s infinite;
+            cursor: default;
+            transition: all 0.3s;
+        }
+
+        .word:hover {
+            transform: scale(1.2) !important;
+            text-shadow: 0 0 20px currentColor;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Animated bar chart */
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 30px;
+            height: 400px;
+            padding: 20px;
+        }
+
+        .bar {
+            width: 80px;
+            background: linear-gradient(180deg, var(--bright-cyan), var(--dark-accent));
+            border-radius: 10px 10px 0 0;
+            position: relative;
+            animation: growBar 1.5s ease-out;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        @keyframes growBar {
+            from { height: 0; }
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--light-gray);
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--bright-yellow);
+            font-size: 1.8rem;
+            font-weight: 900;
+        }
+
+        /* Network graph */
+        .network-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .network-node {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, var(--bright-purple), transparent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bright-white);
+            font-weight: 700;
+            animation: networkPulse 3s infinite;
+        }
+
+        @keyframes networkPulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .network-line {
+            position: absolute;
+            background: linear-gradient(90deg, var(--bright-cyan), var(--bright-purple));
+            height: 2px;
+            transform-origin: left center;
+            opacity: 0.3;
+        }
+
+        /* Heat map grid */
+        .heatmap {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .heat-cell {
+            aspect-ratio: 1;
+            border-radius: 5px;
+            transition: all 0.3s;
+            animation: heatPulse 4s infinite;
+        }
+
+        .heat-cell:hover {
+            transform: scale(1.2);
+            z-index: 10;
+        }
+
+        @keyframes heatPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Navigation */
+        .nav-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            background: rgba(20, 40, 71, 0.95);
+            padding: 15px 30px;
+            border-radius: 50px;
+            border: 1px solid var(--bright-cyan);
+            z-index: 100;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 2px solid var(--bright-cyan);
+            color: var(--bright-cyan);
+            padding: 10px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .nav-btn:hover {
+            background: var(--bright-cyan);
+            color: var(--dark-bg);
+        }
+
+        .slide-indicator {
+            display: flex;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--dark-accent);
+            border: 2px solid var(--bright-cyan);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: var(--bright-cyan);
+            transform: scale(1.3);
+        }
+
+        .exit-btn {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, var(--bright-cyan), var(--bright-purple));
+            color: var(--dark-bg);
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            box-shadow: 0 4px 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .exit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 30px rgba(0, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Title with animated stats -->
+        <div class="slide active">
+            <h1 class="slide-title">Russian Policy Research Dashboard</h1>
+
+            <div class="visual-container">
+                <div class="circular-stats">
+                    <div class="circular-stat">
+                        <svg>
+                            <circle class="background" cx="125" cy="125" r="100"></circle>
+                            <circle class="progress" cx="125" cy="125" r="100" style="stroke-dashoffset: 188;"></circle>
+                        </svg>
+                        <div class="stat-center">
+                            <div class="stat-value">6.2K</div>
+                            <div class="stat-label">Papers</div>
+                        </div>
+                    </div>
+
+                    <div class="circular-stat">
+                        <svg>
+                            <circle class="background" cx="125" cy="125" r="100"></circle>
+                            <circle class="progress" cx="125" cy="125" r="100" style="stroke: var(--bright-yellow); stroke-dashoffset: 178;"></circle>
+                        </svg>
+                        <div class="stat-center">
+                            <div class="stat-value">71%</div>
+                            <div class="stat-label">Open Access</div>
+                        </div>
+                    </div>
+
+                    <div class="circular-stat">
+                        <svg>
+                            <circle class="background" cx="125" cy="125" r="100"></circle>
+                            <circle class="progress" cx="125" cy="125" r="100" style="stroke: var(--bright-green); stroke-dashoffset: 314;"></circle>
+                        </svg>
+                        <div class="stat-center">
+                            <div class="stat-value">27K</div>
+                            <div class="stat-label">Citations</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Data Pipeline Animation -->
+        <div class="slide">
+            <h2 class="slide-title">Data Collection Pipeline</h2>
+
+            <div class="visual-container">
+                <div class="pipeline-visual">
+                    <div class="pipeline-node">
+                        <span class="pipeline-icon">🔍</span>
+                    </div>
+                    <div class="pipeline-arrow"></div>
+                    <div class="pipeline-node" style="animation-delay: 0.5s;">
+                        <span class="pipeline-icon">⚙️</span>
+                    </div>
+                    <div class="pipeline-arrow"></div>
+                    <div class="pipeline-node" style="animation-delay: 1s;">
+                        <span class="pipeline-icon">📊</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Word Cloud of Topics -->
+        <div class="slide">
+            <h2 class="slide-title">Research Landscape</h2>
+
+            <div class="visual-container">
+                <div class="word-cloud" id="wordCloud"></div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Temporal Trend Bar Chart -->
+        <div class="slide">
+            <h2 class="slide-title">Publication Growth</h2>
+
+            <div class="visual-container">
+                <div class="bar-chart">
+                    <div class="bar" style="height: 60%;">
+                        <div class="bar-value">245</div>
+                        <div class="bar-label">2020</div>
+                    </div>
+                    <div class="bar" style="height: 70%;">
+                        <div class="bar-value">287</div>
+                        <div class="bar-label">2021</div>
+                    </div>
+                    <div class="bar" style="height: 85%;">
+                        <div class="bar-value">342</div>
+                        <div class="bar-label">2022</div>
+                    </div>
+                    <div class="bar" style="height: 95%;">
+                        <div class="bar-value">398</div>
+                        <div class="bar-label">2023</div>
+                    </div>
+                    <div class="bar" style="height: 100%;">
+                        <div class="bar-value">425</div>
+                        <div class="bar-label">2024</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Collaboration Network -->
+        <div class="slide">
+            <h2 class="slide-title">Global Collaboration Network</h2>
+
+            <div class="visual-container">
+                <div class="network-container" id="networkContainer"></div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Geographic Heat Map -->
+        <div class="slide">
+            <h2 class="slide-title">Geographic Distribution</h2>
+
+            <div class="visual-container">
+                <div class="heatmap" id="heatmap"></div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Launch CTA -->
+        <div class="slide">
+            <h2 class="slide-title">Explore The Data</h2>
+
+            <div class="visual-container">
+                <div style="text-align: center;">
+                    <div class="circular-stat" style="width: 300px; height: 300px; margin: 0 auto;">
+                        <svg viewBox="0 0 250 250">
+                            <circle class="background" cx="125" cy="125" r="100"></circle>
+                            <circle class="progress" cx="125" cy="125" r="100" style="stroke: var(--bright-cyan); animation: fillCircle 2s infinite;"></circle>
+                        </svg>
+                        <div class="stat-center">
+                            <button class="nav-btn" style="font-size: 1.5rem; padding: 20px 40px; background: var(--bright-cyan); color: var(--dark-bg);" onclick="window.location.href='index.html'">
+                                LAUNCH
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="nav-controls">
+            <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">←</button>
+            <div class="slide-indicator" id="slideIndicator"></div>
+            <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">→</button>
+        </div>
+
+        <!-- Exit Button -->
+        <button class="exit-btn" onclick="window.location.href='index.html'">
+            Dashboard →
+        </button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        // Initialize slide indicator dots
+        function initIndicators() {
+            const indicator = document.getElementById('slideIndicator');
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('span');
+                dot.className = 'dot';
+                dot.onclick = () => goToSlide(i);
+                indicator.appendChild(dot);
+            }
+        }
+
+        // Generate word cloud
+        function generateWordCloud() {
+            const words = [
+                { text: 'FOREIGN POLICY', size: 48, color: '#00ffff' },
+                { text: 'UKRAINE', size: 42, color: '#ffff00' },
+                { text: 'PUTIN', size: 38, color: '#00ff7f' },
+                { text: 'DEFENSE', size: 36, color: '#ff6347' },
+                { text: 'SECURITY', size: 35, color: '#ffa500' },
+                { text: 'NATO', size: 32, color: '#9370db' },
+                { text: 'SANCTIONS', size: 30, color: '#00ffff' },
+                { text: 'ENERGY', size: 28, color: '#ffff00' },
+                { text: 'MILITARY', size: 26, color: '#00ff7f' },
+                { text: 'DIPLOMACY', size: 24, color: '#ff6347' }
+            ];
+
+            const container = document.getElementById('wordCloud');
+            words.forEach((word, i) => {
+                const span = document.createElement('span');
+                span.className = 'word';
+                span.textContent = word.text;
+                span.style.fontSize = word.size + 'px';
+                span.style.color = word.color;
+                span.style.left = (20 + Math.random() * 60) + '%';
+                span.style.top = (20 + Math.random() * 60) + '%';
+                span.style.animationDelay = (i * 0.2) + 's';
+                container.appendChild(span);
+            });
+        }
+
+        // Generate network
+        function generateNetwork() {
+            const container = document.getElementById('networkContainer');
+            const nodes = [
+                { name: 'USA', x: 50, y: 20 },
+                { name: 'RU', x: 50, y: 80 },
+                { name: 'EU', x: 20, y: 50 },
+                { name: 'CN', x: 80, y: 50 },
+                { name: 'UK', x: 30, y: 30 }
+            ];
+
+            nodes.forEach((node, i) => {
+                const div = document.createElement('div');
+                div.className = 'network-node';
+                div.textContent = node.name;
+                div.style.left = node.x + '%';
+                div.style.top = node.y + '%';
+                div.style.animationDelay = (i * 0.2) + 's';
+                container.appendChild(div);
+            });
+
+            // Add connecting lines
+            for (let i = 0; i < 8; i++) {
+                const line = document.createElement('div');
+                line.className = 'network-line';
+                line.style.width = (100 + Math.random() * 200) + 'px';
+                line.style.left = Math.random() * 80 + '%';
+                line.style.top = Math.random() * 80 + '%';
+                line.style.transform = `rotate(${Math.random() * 360}deg)`;
+                container.appendChild(line);
+            }
+        }
+
+        // Generate heatmap
+        function generateHeatmap() {
+            const container = document.getElementById('heatmap');
+            for (let i = 0; i < 100; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'heat-cell';
+                const intensity = Math.random();
+                if (intensity > 0.7) {
+                    cell.style.background = 'var(--bright-red)';
+                } else if (intensity > 0.4) {
+                    cell.style.background = 'var(--bright-yellow)';
+                } else {
+                    cell.style.background = 'var(--bright-cyan)';
+                }
+                cell.style.animationDelay = (i * 0.01) + 's';
+                container.appendChild(cell);
+            }
+        }
+
+        // Show specific slide
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            document.querySelectorAll('.dot').forEach(dot => dot.classList.remove('active'));
+
+            slides[index].classList.add('active');
+            document.querySelectorAll('.dot')[index].classList.add('active');
+
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSlides - 1;
+        }
+
+        // Change slide
+        function changeSlide(direction) {
+            currentSlide += direction;
+            if (currentSlide < 0) currentSlide = 0;
+            if (currentSlide >= totalSlides) currentSlide = totalSlides - 1;
+            showSlide(currentSlide);
+        }
+
+        // Go to specific slide
+        function goToSlide(index) {
+            currentSlide = index;
+            showSlide(currentSlide);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+            if (e.key === 'Escape') window.location.href = 'index.html';
+        });
+
+        // Initialize
+        initIndicators();
+        showSlide(0);
+        generateWordCloud();
+        generateNetwork();
+        generateHeatmap();
+
+        // Auto-advance
+        setInterval(() => {
+            if (currentSlide < totalSlides - 1) {
+                changeSlide(1);
+            }
+        }, 10000);
+    </script>
+</body>
+</html>

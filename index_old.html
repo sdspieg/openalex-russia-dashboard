@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russian Policy Research Dashboard - OpenAlex Analysis</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --border: #334155;
+            --text: #f8fafc;
+            --accent: #ef4444;
+            --secondary: #3b82f6;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 2rem;
+            border-bottom: 2px solid var(--accent);
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+        .nav {
+            display: flex;
+            background: var(--card-bg);
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-item {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            color: #94a3b8;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: 0.3s;
+            margin: 0 0.5rem;
+        }
+        .nav-item:hover {
+            color: var(--text);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        .nav-item.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem;
+            background: var(--card-bg);
+            margin: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        .stat-card {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--bg);
+            border-radius: 8px;
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin: 0.5rem 0;
+        }
+        .stat-label {
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+        .content {
+            display: none;
+            padding: 2rem;
+        }
+        .content.active {
+            display: block;
+        }
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .chart-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            min-height: 450px;
+            position: relative;
+        }
+        .chart-card.full {
+            grid-column: 1 / -1;
+        }
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+        .help-icon {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--border);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-weight: 800;
+            z-index: 10;
+            transition: 0.3s;
+        }
+        .help-icon:hover {
+            background: var(--accent);
+            transform: scale(1.1);
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .modal {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 20px;
+            max-width: 800px;
+            width: 100%;
+            border: 2px solid var(--accent);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            transition: 0.3s;
+        }
+        .close-modal:hover {
+            color: var(--accent);
+            transform: scale(1.2);
+        }
+        .modal h2 {
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        .modal ul {
+            margin-left: 1.5rem;
+            line-height: 2;
+        }
+        .modal li {
+            margin-bottom: 0.8rem;
+        }
+        .modal strong {
+            color: var(--secondary);
+        }
+        .insight-box {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 12px;
+        }
+        .insight-title {
+            color: var(--accent);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .table-container {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: var(--bg);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--accent);
+            border-bottom: 2px solid var(--border);
+        }
+        td {
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--border);
+        }
+        tr:hover {
+            background: rgba(239, 68, 68, 0.05);
+        }
+        .footer {
+            background: var(--card-bg);
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
+    <div class="modal" id="modal-content" onclick="event.stopPropagation()">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <h2 id="modal-title"></h2>
+        <div id="modal-body"></div>
+    </div>
+</div>
+
+<header>
+    <h1>Russian Policy Research Analysis</h1>
+    <div class="subtitle">OpenAlex Bibliometric Dashboard | 6329 Papers (1916-2026)</div>
+</header>
+
+<div class="nav">
+    <div class="nav-item active" onclick="showTab('overview')">Overview</div>
+    <div class="nav-item" onclick="showTab('temporal')">Temporal Analysis</div>
+    <div class="nav-item" onclick="showTab('taxonomy')">OpenAlex Taxonomy</div>
+    <div class="nav-item" onclick="showTab('topics')">Topics & Themes</div>
+    <div class="nav-item" onclick="showTab('geography')">Geographic Distribution</div>
+    <div class="nav-item" onclick="showTab('impact')">Citation Impact</div>
+    <div class="nav-item" onclick="showTab('sources')">Publication Venues</div>
+</div>
+
+<div id="overview" class="content active">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Papers</div>
+            <div class="stat-value">6,329</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Open Access</div>
+            <div class="stat-value">4,516</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Citations</div>
+            <div class="stat-value">27,303</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Unique Authors</div>
+            <div class="stat-value">6,971</div>
+        </div>
+    </div>
+
+    <div class="chart-grid">
+        <div class="chart-card">
+            <div class="help-icon" onclick="showHelp('search-location')">?</div>
+            <div class="chart-title">Where Search Terms Appear</div>
+            <div id="search-location"></div>
+        </div>
+        <div class="chart-card">
+            <div class="help-icon" onclick="showHelp('oa-types')">?</div>
+            <div class="chart-title">Open Access Types</div>
+            <div id="oa-status"></div>
+        </div>
+        <div class="chart-card">
+            <div class="help-icon" onclick="showHelp('languages')">?</div>
+            <div class="chart-title">Language Distribution</div>
+            <div id="languages-chart"></div>
+        </div>
+    </div>
+</div>
+
+<div id="temporal" class="content">
+    <div class="chart-card full">
+        <div class="help-icon" onclick="showHelp('timeline')">?</div>
+        <div class="chart-title">Publication Timeline (1916-2026)</div>
+        <div id="timeline"></div>
+    </div>
+</div>
+
+<div id="taxonomy" class="content">
+    <div class="chart-grid">
+        <div class="chart-card">
+            <div class="help-icon" onclick="showHelp('domains')">?</div>
+            <div class="chart-title">Research Domains (Top Level)</div>
+            <div id="domains-chart"></div>
+        </div>
+        <div class="chart-card">
+            <div class="help-icon" onclick="showHelp('fields')">?</div>
+            <div class="chart-title">Research Fields</div>
+            <div id="fields-chart"></div>
+        </div>
+        <div class="chart-card full">
+            <div class="help-icon" onclick="showHelp('subfields')">?</div>
+            <div class="chart-title">Research Subfields</div>
+            <div id="subfields-chart"></div>
+        </div>
+    </div>
+</div>
+
+<div id="topics" class="content">
+    <div class="chart-grid">
+        <div class="chart-card">
+            <div class="help-icon" onclick="showHelp('topics')">?</div>
+            <div class="chart-title">Top Research Topics</div>
+            <div id="topics-chart"></div>
+        </div>
+        <div class="chart-card">
+            <div class="help-icon" onclick="showHelp('themes')">?</div>
+            <div class="chart-title">Research Themes (Abstract Analysis)</div>
+            <div id="themes-chart"></div>
+        </div>
+    </div>
+</div>
+
+<div id="geography" class="content">
+    <div class="chart-grid">
+        <div class="chart-card">
+            <div class="help-icon" onclick="showHelp('countries')">?</div>
+            <div class="chart-title">Top Countries</div>
+            <div id="countries-chart"></div>
+        </div>
+        <div class="chart-card">
+            <div class="help-icon" onclick="showHelp('institutions')">?</div>
+            <div class="chart-title">Top Institutions</div>
+            <div id="institutions-chart"></div>
+        </div>
+    </div>
+</div>
+
+<div id="impact" class="content">
+    <div class="help-icon" onclick="showHelp('citations')">?</div>
+    <div class="table-container">
+        <div class="chart-title">Top 20 Most Cited Papers</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Authors</th>
+                    <th>Year</th>
+                    <th>Citations</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Bringing Transnational Relations Back In...</td>
+                    <td>Thomas Risse, Thomas Risse, Thomas Risse</td>
+                    <td>1995</td>
+                    <td>1067</td>
+                </tr>
+                <tr>
+                    <td>Status Seekers: Chinese and Russian Responses to U.S. Primacy...</td>
+                    <td>Deborah Welch Larson, Alexei Shevchenko</td>
+                    <td>2010</td>
+                    <td>502</td>
+                </tr>
+                <tr>
+                    <td>Fake News...</td>
+                    <td>Irina Khaldarova, Mervi Pantti</td>
+                    <td>2016</td>
+                    <td>285</td>
+                </tr>
+                <tr>
+                    <td>Russian foreign policy: the return of great power politics...</td>
+                    <td>Jeffrey Mankoff</td>
+                    <td>2009</td>
+                    <td>264</td>
+                </tr>
+                <tr>
+                    <td>Russia and the Idea of Europe: A Study in Identity and International Relations...</td>
+                    <td>İver B. Neumann</td>
+                    <td>1995</td>
+                    <td>196</td>
+                </tr>
+                <tr>
+                    <td>The Distribution of Identity and the Future of International Order: China's Hege...</td>
+                    <td>Bentley B. Allan, Srdjan Vucetic, Ted Hopf</td>
+                    <td>2018</td>
+                    <td>155</td>
+                </tr>
+                <tr>
+                    <td>Russia and Syria: explaining alignment with a regime in crisis...</td>
+                    <td>Roy Allison</td>
+                    <td>2013</td>
+                    <td>149</td>
+                </tr>
+                <tr>
+                    <td>Networked Authoritarianism and the Geopolitics of Information: Understanding Rus...</td>
+                    <td>Nathalie Maréchal</td>
+                    <td>2017</td>
+                    <td>139</td>
+                </tr>
+                <tr>
+                    <td>Russia and ‘hybrid warfare’...</td>
+                    <td>Bettina Renz</td>
+                    <td>2016</td>
+                    <td>138</td>
+                </tr>
+                <tr>
+                    <td>If not by tanks, then by banks? The role of soft power in Putin's foreign policy...</td>
+                    <td>Andreï P. Tsygankov</td>
+                    <td>2006</td>
+                    <td>134</td>
+                </tr>
+                <tr>
+                    <td>Russia’s strategy for influence through public diplomacy and active measures: th...</td>
+                    <td>Martin Kragh, Sebastian Åsberg</td>
+                    <td>2017</td>
+                    <td>134</td>
+                </tr>
+                <tr>
+                    <td>The Rebuilding of Greater Russia: Putin's Foreign Policy Towards the CIS Countri...</td>
+                    <td>Bertil Nygren</td>
+                    <td>2007</td>
+                    <td>130</td>
+                </tr>
+                <tr>
+                    <td>Authoritarian International Law?...</td>
+                    <td>Tom Ginsburg</td>
+                    <td>2020</td>
+                    <td>127</td>
+                </tr>
+                <tr>
+                    <td>Russia and the new world disorder...</td>
+                    <td></td>
+                    <td>2016</td>
+                    <td>124</td>
+                </tr>
+                <tr>
+                    <td>Less Annotating, More Classifying: Addressing the Data Scarcity Issue of Supervi...</td>
+                    <td>Moritz Laurer, Wouter van Atteveldt, Andreu Casas</td>
+                    <td>2023</td>
+                    <td>124</td>
+                </tr>
+                <tr>
+                    <td>Understanding Russia's Soft Power Strategy...</td>
+                    <td>Alexander Sergunin, Leonid A. Karabeshkin</td>
+                    <td>2015</td>
+                    <td>123</td>
+                </tr>
+                <tr>
+                    <td>Conservative soft power: liberal soft power bias and the ‘hidden’ attraction of ...</td>
+                    <td>Vincent Charles Keating, Katarzyna Kaczmarska</td>
+                    <td>2017</td>
+                    <td>122</td>
+                </tr>
+                <tr>
+                    <td>Putin's propaganda machine: soft power and Russian foreign policy...</td>
+                    <td></td>
+                    <td>2016</td>
+                    <td>121</td>
+                </tr>
+                <tr>
+                    <td>Framing and Agenda-setting in Russian News: a Computational Analysis of Intricat...</td>
+                    <td>Anjalie Field, Doron Kliger, Shuly Wintner</td>
+                    <td>2018</td>
+                    <td>121</td>
+                </tr>
+                <tr>
+                    <td>Russia as a great power, 1815–2007...</td>
+                    <td>İver B. Neumann</td>
+                    <td>2008</td>
+                    <td>120</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="sources" class="content">
+    <div class="chart-card full">
+        <div class="help-icon" onclick="showHelp('sources')">?</div>
+        <div class="chart-title">Top Publication Venues</div>
+        <div id="sources-chart"></div>
+    </div>
+</div>
+
+<div class="footer">
+    <p>Generated: 2026-03-09 08:01 | Data Source: OpenAlex API | RuBase Workshop - Fletcher School</p>
+</div>
+
+<script>
+const data = {"stats": {"total_papers": 6329, "open_access": 4516, "total_citations": 27303, "unique_authors": 6971}, "temporal": {"1916": 1, "1927": 1, "1940": 1, "1941": 2, "1943": 2, "1946": 1, "1947": 3, "1950": 2, "1951": 1, "1954": 1, "1955": 1, "1956": 2, "1957": 6, "1958": 2, "1959": 2, "1960": 3, "1961": 1, "1962": 3, "1963": 16, "1964": 2, "1965": 3, "1966": 4, "1967": 5, "1968": 2, "1969": 3, "1970": 7, "1971": 5, "1972": 1, "1973": 4, "1974": 4, "1975": 6, "1976": 3, "1977": 8, "1978": 3, "1979": 2, "1980": 3, "1981": 2, "1982": 9, "1983": 8, "1984": 2, "1985": 2, "1986": 3, "1988": 2, "1989": 4, "1991": 1, "1992": 17, "1993": 15, "1994": 15, "1995": 30, "1996": 41, "1997": 53, "1998": 48, "1999": 32, "2000": 37, "2001": 42, "2002": 53, "2003": 41, "2004": 90, "2005": 71, "2006": 61, "2007": 78, "2008": 112, "2009": 138, "2010": 112, "2011": 137, "2012": 161, "2013": 161, "2014": 245, "2015": 277, "2016": 328, "2017": 292, "2018": 387, "2019": 411, "2020": 476, "2021": 467, "2022": 560, "2023": 597, "2024": 320, "2025": 230, "2026": 21}, "topics": {"European Politics and Security": 738, "Russia and Soviet political economy": 1339, "European and Russian Geopolitical Military Strategies": 1212, "International Relations and Foreign Policy": 1083, "Political Conflict and Governance": 163, "Post-Soviet Geopolitical Dynamics": 905, "Global Peace and Security Dynamics": 178, "Global Security and Public Health": 72, "Media Studies and Communication": 37, "Public Relations and Crisis Communication": 12, "Economic Sanctions and International Relations": 424, "Arctic and Russian Policy Studies": 540, "Global Political and Economic Relations": 612, "Cross-Border Cooperation and Integration": 51, "European Union Policy and Governance": 159, "American Constitutional Law and Politics": 39, "China's Ethnic Minorities and Relations": 27, "China's Socioeconomic Reforms and Governance": 7, "Historical Studies on Spain": 7, "Historical Studies in Latin America": 2, "European Political History Analysis": 33, "Global Socioeconomic and Political Dynamics": 27, "Metallurgy and Cultural Artifacts": 209, "Security, Politics, and Digital Transformation": 588, "Global Energy Security and Policy": 438, "Healthcare, Law, Governance, and Management Studies": 46, "Eastern European Communism and Reforms": 200, "Central Asia Education and Culture": 230, "Cultural Differences and Values": 12, "Philippine History and Culture": 11, "Canadian Identity and History": 9, "Religion and Society Interactions": 71, "International Relations in Latin America": 129, "Polar Research and Ecology": 24, "Historical Influence and Diplomacy": 30, "Central European and Russian historical studies": 73, "Historical Geopolitical and Social Dynamics": 130, "World Wars: History, Literature, and Impact": 27, "Cybersecurity and Cyber Warfare Studies": 62, "Natural Resources and Economic Development": 37, "Island Studies and Pacific Affairs": 14, "International Development and Aid": 92, "Soviet and Russian History": 171, "Emotions and Moral Behavior": 2, "Terrorism, Counterterrorism, and Political Violence": 63, "Middle East and Rwanda Conflicts": 168, "Cyprus History, Politics, Society": 17, "Defense, Military, and Policy Studies": 68, "Military and Defense Studies": 53, "Space exploration and regulation": 6, "Turkey's Politics and Society": 53, "Jewish and Middle Eastern Studies": 24, "Islamic Studies and History": 26, "Media Influence and Politics": 14, "Political Influence and Corporate Strategies": 18, "Global Political and Social Dynamics": 31, "Balkans: History, Politics, Society": 58, "Balkan and Eastern European Studies": 47, "Social and Intergroup Psychology": 9, "Nuclear Issues and Defense": 157, "International Maritime Law Issues": 4, "Korean Peninsula Historical and Political Studies": 78, "Electoral Systems and Political Participation": 18, "Environmental and Biological Research in Conflict Zones": 40, "Crime, Illicit Activities, and Governance": 5, "Legal and Policy Issues": 26, "European and International Law Studies": 68, "Diaspora, migration, transnational identity": 4, "Economic, Social, and Public Health Issues in Russia and Globally": 73, "Rangeland Management and Livestock Ecology": 7, "Peacebuilding and International Security": 75, "Vietnamese History and Culture Studies": 7, "Asian Geopolitics and Ethnography": 15, "Sociopolitical Dynamics in Russia": 142, "Global trade and economics": 72, "Economic and Technological Developments in Russia": 49, "Chinese history and philosophy": 19, "Economic Development and Digital Transformation": 20, "Historical and Contemporary Political Dynamics": 37, "Geological Studies and Exploration": 10, "Sport and Mega-Event Impacts": 5, "Sports, Gender, and Society": 8, "Colonial History and Postcolonial Studies": 4, "Historical Turkish Studies": 25, "Political and Social Dynamics in Chile and Latin America": 22, "Sociology, Governance, and Technology": 2, "Intelligence, Security, War Strategy": 36, "Misinformation and Its Impacts": 31, "International Business and FDI": 13, "International Arbitration and Investment Law": 12, "World Systems and Global Transformations": 14, "Elite Sociology and Global Capitalism": 10, "Economic Theory and Policy": 4, "Hermeneutics and Narrative Identity": 14, "Aging, Elder Care, and Social Issues": 14, "Health, Medicine and Society": 14, "Cambodian History and Society": 1, "Corruption and Economic Development": 8, "Politics and Conflicts in Afghanistan, Pakistan, and Middle East": 88, "Belt and Road Initiative": 34, "Indian Economic and Social Development": 10, "Border Security and International Relations": 14, "Migration and Labor Dynamics": 8, "Military History and Strategy": 36, "Coastal Management and Development": 8, "Social Media and Politics": 32, "Brazilian History and Foreign Policy": 16, "International Science and Diplomacy": 30, "French Historical and Cultural Studies": 7, "Language, Communication, and Linguistic Studies": 23, "Discourse Analysis and Cultural Communication": 34, "Communism, Protests, Social Movements": 16, "Regional Socio-Economic Development Trends": 71, "Gender, Security, and Conflict": 22, "Migration, Health and Trauma": 4, "Opinion Dynamics and Social Influence": 5, "Cultural, Linguistic, Economic Studies": 13, "International Law and Human Rights": 30, "Gender Politics and Representation": 12, "International Human Rights and Reproductive Law": 6, "Technology Assessment and Management": 4, "Regional Development and Policy": 20, "Political Economy and Marxism": 8, "Global Energy and Sustainability Research": 23, "Central European national history": 12, "Eurasian Exchange Networks": 14, "Post-Communist Economic and Political Transition": 33, "Populism, Right-Wing Movements": 30, "Religion, Society, and Development": 14, "Military Strategy and Technology": 13, "Asian Studies and History": 8, "Hong Kong and Taiwan Politics": 1, "Socio-political and Technological Issues": 3, "Legal and Regulatory Analysis": 76, "Multicultural Socio-Legal Studies": 1, "History and Cultural Heritage": 7, "Linguistics and Cultural Studies": 8, "Language, Metaphor, and Cognition": 2, "Discourse Analysis in Language Studies": 6, "linguistics and terminology studies": 1, "Memory, Trauma, and Commemoration": 13, "Economic and Fiscal Studies": 3, "Socioeconomic Development in MENA": 18, "Linguistics, Language Diversity, and Identity": 4, "Higher Education Governance and Development": 14, "Environmental Policies and Emissions": 1, "International Environmental Law and Policies": 5, "COVID-19, Geopolitics, Technology, Migration": 11, "Globalization and Cultural Identity": 8, "Leadership, Human Resources, Global Affairs": 8, "Science, Research, and Medicine": 4, "Legal and Constitutional Studies": 1, "Marine and environmental studies": 5, "Islamic Studies and Radicalism": 7, "activated carbon and charcoal": 2, "Metallurgical and Alloy Processes": 1, "Cultural and political discourse analysis": 2, "Southeast Asian Sociopolitical Studies": 7, "Health and Conflict Studies": 6, "Socioeconomic Development in Asia": 3, "Economic Issues in Ukraine": 55, "Japanese History and Culture": 21, "Logistics and Transportation Systems": 1, "Water Resources and Governance": 1, "Government, Law, and Information Management": 1, "War, Ethics, and Justification": 5, "Peripheral Neuropathies and Disorders": 1, "Hereditary Neurological Disorders": 1, "Neurology and Historical Studies": 1, "Historical and Political Studies": 2, "Social and Behavioral Studies": 6, "Global Maritime and Colonial Histories": 4, "Colonialism, slavery, and trade": 4, "Caribbean history, culture, and politics": 1, "Computational and Text Analysis Methods": 11, "European Cultural and National Identity": 17, "Polish Historical and Cultural Studies": 43, "Historical and Linguistic Studies": 6, "Archaeology and Historical Studies": 4, "Biblical Studies and Interpretation": 4, "Media and Digital Communication": 2, "American Environmental and Regional History": 1, "Music History and Culture": 1, "German legal, social, and political studies": 4, "Nuclear and radioactivity studies": 5, "Military, Security, and Education Studies": 13, "Indigenous Studies and Ecology": 12, "Educational Innovations and Challenges": 14, "Foreign Language Teaching Methods": 5, "South Asian Studies and Conflicts": 24, "Archaeological Research and Protection": 6, "Historical and Cultural Studies of Poland": 8, "Musicology and Musical Analysis": 2, "Multidisciplinary Science and Engineering Research": 29, "South African History and Culture": 1, "Australian History and Society": 10, "Christian Theology and Mission": 1, "Cuban History and Society": 17, "European history and politics": 24, "German History and Society": 17, "Intellectual Property Rights and Media": 6, "Byzantine Studies and History": 10, "Quality and Management Systems": 3, "Regional Economic Development and Innovation": 11, "Educational Practices and Challenges": 2, "International Student and Expatriate Challenges": 4, "Education and Islamic Studies": 3, "Advanced Research in Science and Engineering": 2, "Journalism and Media Studies": 1, "Innovations in Education and Learning Technologies": 7, "Political and Social Issues": 5, "European Socioeconomic and Political Studies": 4, "Migration, Aging, and Tourism Studies": 1, "International Law and Aviation": 12, "Global Trade and Competitiveness": 21, "Historical Studies of British Isles": 3, "Scottish History and National Identity": 8, "Military Technology and Strategies": 72, "Linguistic, Cultural, and Literary Studies": 71, "Anthropology: Ethics, History, Culture": 7, "Globalization, Economics, and Policies": 26, "Psychosocial Factors Impacting Youth": 2, "Economic Theory and Institutions": 2, "Business Strategy and Innovation": 5, "Rhetoric and Communication Studies": 7, "Linguistics and language evolution": 13, "Mormonism, Religion, and History": 1, "Jewish Identity and Society": 2, "Race, History, and American Society": 5, "Hate Speech and Cyberbullying Detection": 6, "History and International Relations": 2, "Travel Writing and Literature": 6, "Nonprofit Sector and Volunteering": 2, "Public Policy and Administration Research": 1, "Ottoman Empire History and Society": 17, "Ancient Near East History": 3, "African history and culture studies": 10, "Diverse Aspects of Tourism Research": 2, "Legal case studies and regulations": 24, "American History and Culture": 2, "Freedom of Expression and Defamation": 1, "Judicial and Constitutional Studies": 8, "Foucault, Power, and Ethics": 4, "War, Law, and Justice": 3, "Historical Art and Culture Studies": 4, "Management and Optimization Techniques": 1, "Global Financial Crisis and Policies": 13, "Asian Culture and Media Studies": 5, "EU Law and Policy Analysis": 7, "Economic Development and Regional Competitiveness": 1, "Healthcare Systems and Public Health": 1, "Cultural and Sociopolitical Studies": 6, "Historical Gender and Feminism Studies": 4, "Decolonial Thought and Epistemologies": 3, "Social and Cultural Dynamics": 2, "State Capitalism and Financial Governance": 7, "Medieval European History and Architecture": 5, "Religious Studies and Spiritual Practices": 6, "Middle East Politics and Society": 10, "Digital Education and Society": 4, "Psycholinguistics and Behavioral Studies": 3, "Environmental Sustainability and Technology": 1, "Poverty, Education, and Child Welfare": 1, "Economic Policies and Impacts": 1, "Fiscal Policy and Economic Growth": 2, "Politics, Economics, and Education Policy": 1, "Italian Fascism and Post-war Society": 7, "Educational Systems and Policies": 1, "Energy and Environmental Systems": 2, "Economic Zones and Regional Development": 10, "Multilingual Education and Policy": 5, "Corporate Finance and Governance": 1, "Working Capital and Financial Performance": 1, "Banking stability, regulation, efficiency": 2, "Scientific Research and Philosophical Inquiry": 4, "Global and Cross-Cultural Management": 1, "Topic Modeling": 1, "Natural Language Processing Techniques": 2, "Philosophy, History, and Historiography": 3, "Historical Studies and Socio-cultural Analysis": 13, "Political Systems and Governance": 6, "Political and Economic history of UK and US": 5, "Hungarian Social, Economic and Educational Studies": 14, "Academic Freedom and Politics": 2, "History of Science and Natural History": 2, "Australian Indigenous Culture and History": 1, "Pacific and Southeast Asian Studies": 1, "Education Systems and Policy": 1, "Migration, Refugees, and Integration": 9, "Diverse Musicological Studies": 3, "Library Science and Information": 3, "Library Science and Information Systems": 1, "Library Science and Administration": 1, "Ottoman and Turkish Studies": 21, "Food Industry and Aquatic Biology": 4, "Historical, Literary, and Cultural Studies": 1, "Economic and Business Development Strategies": 3, "Big Data Technologies and Applications": 2, "Political Theology and Sovereignty": 6, "Maritime and Coastal Archaeology": 6, "Atmospheric and Environmental Gas Dynamics": 3, "Climate Change Policy and Economics": 4, "Energy, Environment, and Transportation Policies": 5, "Maritime Security and History": 5, "Political Theory and Influence": 1, "Education, Sociology, Communication Studies": 1, "Energy and Environmental Sustainability": 1, "Economic and Technological Systems Analysis": 2, "Interdisciplinary Cultural and Social Studies": 2, "Psychology of Development and Education": 5, "Multiculturalism, Politics, Migration, Gender": 2, "Culture, Economy, and Development Studies": 3, "Social Policy and Reform Studies": 10, "Marine and Coastal Ecosystems": 2, "Coastal and Marine Management": 2, "LGBTQ Health, Identity, and Policy": 2, "Educational Methods and Teacher Development": 3, "Smart Cities and Technologies": 1, "Vladimir Nabokov Literary Studies": 4, "Russian Literature and Bakhtin Studies": 5, "History of Science and Medicine": 1, "Legal Studies and Policies": 4, "China's Global Influence and Migration": 10, "Spanish History and Politics": 4, "Historical and Literary Studies": 3, "Policy Transfer and Learning": 1, "Human Rights and Development": 5, "Economic and Technological Innovation": 8, "Early Modern Spanish Literature": 2, "Entrepreneurship Studies and Influences": 2, "Gender Diversity and Inequality": 1, "Labor market dynamics and wage inequality": 1, "MXene and MAX Phase Materials": 1, "Classical Studies and Philology": 1, "Art, Politics, and Modernism": 3, "Technology and Data Analysis": 1, "Physical education and sports games research": 1, "Big Data and Business Intelligence": 1, "Helicobacter pylori-related gastroenterology studies": 1, "Celiac Disease Research and Management": 1, "Galectins and Cancer Biology": 1, "Media, Journalism, and Communication History": 2, "Spanish Culture and Identity": 4, "Transboundary Water Resource Management": 8, "Innovation Policy and R&D": 2, "Central European Literary Studies": 1, "Lexicography and Language Studies": 3, "Literature, Language, and Rhetoric Studies": 5, "Personality Traits and Psychology": 1, "Twentieth Century Scientific Developments": 2, "Weber, Simmel, Sociological Theory": 1, "Critical Theory and Philosophy": 3, "Global Health Care Issues": 1, "Indonesian Election Politics and Participation": 5, "Religion, Spirituality, and Psychology": 1, "Social Science and Policy Research": 4, "Media Influence and Health": 1, "Humanities and Social Sciences": 4, "Religious Tourism and Spaces": 9, "Urbanization and City Planning": 5, "Competency Development and Evaluation": 1, "Humor Studies and Applications": 4, "Gender, Feminism, and Media": 3, "Digital Games and Media": 2, "Sentiment Analysis and Opinion Mining": 1, "Political theory and Gramsci": 2, "Global Development and Urbanization": 1, "Sociopolitical Dynamics in Nepal": 2, "Cybercrime and Law Enforcement Studies": 2, "Advanced Malware Detection Techniques": 2, "European Criminal Justice and Data Protection": 4, "Energy, Environment, Economic Growth": 2, "Religious, Philosophical, and Educational Studies": 5, "Education and Character Development": 1, "Pancasila Values in Education": 3, "Climate change and permafrost": 1, "Politics and Society in Latin America": 6, "Bangladesh Politics, Society, and Development": 2, "Information and Cyber Security": 4, "Digital Marketing and Social Media": 2, "Culinary Culture and Tourism": 1, "Agriculture, Land Use, Rural Development": 4, "Religious Freedom and Discrimination": 1, "COVID-19 Prevention and Impact": 1, "Online and Blended Learning": 2, "Qualitative Research Methods and Ethics": 1, "Globalization and political ideologies": 3, "Integrated Energy Systems Optimization": 1, "Environmental Impact and Sustainability": 1, "African Studies and Geopolitics": 2, "Media, Religion, Digital Communication": 3, "Halal products and consumer behavior": 2, "Global History, Politics, and Ideology": 6, "Education and experiences of immigrants and refugees": 2, "Engineering and Environmental Studies": 2, "Global Economic and Social Development": 5, "Economic Growth and Productivity": 2, "HIV, Drug Use, Sexual Risk": 1, "Crime Patterns and Interventions": 2, "Regional Development and Management Studies": 7, "Labor Market and Education": 3, "Business and Economic Development": 3, "Digital Media Forensic Detection": 1, "Second Language Learning and Teaching": 3, "Gender Studies in Language": 1, "Migration, Ethnicity, and Economy": 5, "Legal Studies and Reforms": 1, "Ukrainian Legal and Forensic Studies": 2, "Environmental Sustainability and Education": 2, "Logistics and Infrastructure Analysis": 1, "Literature, Musicology, and Cultural Analysis": 1, "Global Politics and Economy": 3, "Legal Issues in South Africa": 1, "Vaccine Coverage and Hesitancy": 1, "COVID-19 Pandemic Impacts": 1, "COVID-19 epidemiological studies": 1, "Animal Disease Management and Epidemiology": 1, "Vector-Borne Animal Diseases": 1, "Viral Infections and Immunology Research": 1, "Italian Literature and Culture": 1, "Globalization, Historical Perspectives, and International Relations": 2, "Economic Growth and Development": 1, "Contemporary and Historical Greek Studies": 3, "Aquatic and Environmental Studies": 2, "Qualitative Comparative Analysis Research": 3, "Management and Organizational Studies": 3, "Education and Social Development in Ukraine": 2, "Translation Studies and Practices": 2, "Doping in Sports": 1, "Sexuality, Behavior, and Technology": 1, "Innovative Teaching Methodologies in Social Sciences": 4, "Educator Training and Historical Pedagogy": 7, "Higher Education and Sustainability": 1, "Innovation, Sustainability, Human-Machine Systems": 3, "Diverse Scientific and Economic Studies": 23, "Risk Perception and Management": 3, "Legal, Health, Environmental and COVID-19 Challenges": 1, "Brazilian cultural history and politics": 3, "Youth, Politics, and Society": 2, "Agricultural Development and Policies": 2, "Social Sciences and Policies": 1, "Families in Therapy and Culture": 2, "Social Movements and Cultural Identity": 1, "Martial Arts: Techniques, Psychology, and Education": 1, "Diversity and Impact of Dance": 1, "Indian History and Philosophy": 2, "Political Philosophy and Ethics": 4, "Coal and Coke Industries Research": 4, "Market Dynamics and Volatility": 3, "Social Acceptance of Renewable Energy": 1, "Art History and Market Analysis": 1, "Psychology of Moral and Emotional Judgment": 3, "Islamic Finance and Banking Studies": 4, "Insurance and Financial Risk Management": 1, "Cognitive Science and Mapping": 1, "Legal and Policy Analysis in Indonesia": 3, "Indonesian Legal and Regulatory Studies": 5, "Torture, Ethics, and Law": 2, "Folklore, Mythology, and Literature Studies": 5, "Social Work Education and Practice": 1, "Space Science and Extraterrestrial Life": 4, "Renewable energy and sustainable power systems": 3, "European Linguistics and Anthropology": 2, "Ethics in Clinical Research": 1, "Biomedical Ethics and Regulation": 2, "Pharmaceutical industry and healthcare": 1, "Space Exploration and Technology": 1, "Planetary Science and Exploration": 1, "Leadership, Courage, and Heroism Studies": 2, "American Political and Social Dynamics": 2, "Gothic Literature and Media Analysis": 2, "Human auditory perception and evaluation": 8, "Educational Robotics and Engineering": 2, "Socioeconomic and Demographic Analysis": 3, "Polish socio-economic development": 4, "Medical and Biological Sciences": 1, "Religious Education and Schools": 2, "Flannery O'Connor and Thomas Merton": 1, "Economic Growth and Fiscal Policies": 1, "Historical and Archaeological Studies": 5, "Seventeenth-Century Political and Philosophical Thought": 3, "Hannah Arendt's Political Philosophy": 2, "Crime and Detective Fiction Studies": 1, "Islamic Finance and Communication": 3, "Economic Systems and Logistics Management": 2, "History of Computing Technologies": 1, "Racial and Ethnic Identity Research": 1, "Legal and Social Justice Studies": 3, "Public Administration in Developing Nations": 1, "Offshore Engineering and Technologies": 1, "Ocean Acidification Effects and Responses": 1, "Social and Cultural Studies": 1, "Whitehead's Philosophy and Applications": 3, "Paranormal Experiences and Beliefs": 1, "Academic and Historical Perspectives in Psychology": 1, "Historical Economic and Social Studies": 3, "Economic, Social, and Health Studies": 1, "Electric Vehicles and Infrastructure": 1, "Cultural, Psychoanalytic, and Sociopolitical Reflections": 1, "European Monetary and Fiscal Policies": 3, "Ombudsman and Human Rights": 2, "Public Procurement and Policy": 1, "Mining and Resource Management": 3, "Patient Dignity and Privacy": 1, "Death Anxiety and Social Exclusion": 1, "History and Politics in Latin America": 4, "Conflict, Peace, and Violence in Colombia": 5, "Experimental Behavioral Economics Studies": 1, "University-Industry-Government Innovation Models": 1, "Night-time city culture": 1, "Violence, Religion, and Philosophy": 2, "Ethics in Business and Education": 1, "Religion and Sociopolitical Dynamics in Nigeria": 4, "HIV/AIDS Impact and Responses": 3, "Management Theory and Practice": 1, "Local Governance and Planning": 1, "Historical Linguistics and Language Studies": 3, "Political Science Research and Education": 2, "scientometrics and bibliometrics research": 2, "Cultural Heritage Management and Preservation": 1, "Family Business Performance and Succession": 1, "Irish and British Studies": 3, "Nutrition, Health, and Society Studies": 2, "Canadian Policy and Governance": 6, "World Trade Organization Law": 4, "Urban Planning and Governance": 1, "Water Governance and Infrastructure": 2, "Public Spaces through Art": 2, "Geographies of human-animal interactions": 3, "Psychiatric care and mental health services": 1, "Global Health Workforce Issues": 1, "Theology and Canon Law Studies": 5, "Education and Cultural Studies": 1, "Catholicism, Bioethics, Media, Education": 1, "Global Educational Reforms and Inequalities": 1, "Critical and Liberation Pedagogy": 1, "Intimate Partner and Family Violence": 1, "Gender, Violence, Rights in Latin America": 1, "Conservation, Biodiversity, and Resource Management": 1, "Anthropological Studies and Insights": 3, "Migration, Education, Indigenous Social Dynamics": 1, "Cultural and Social Studies in Latin America": 1, "Indigenous Cultures and History": 1, "Landscape and Cultural Studies": 1, "Environmental Philosophy and Ethics": 1, "Gender, Health, and Social Inequality": 1, "Cultural and Social Dynamics": 1, "Sociology and Norbert Elias": 2, "Ancient and Medieval Archaeology Studies": 3, "Open Education and E-Learning": 1, "Higher Education Learning Practices": 1, "Legal Education and Practice Innovations": 1, "Methane Hydrates and Related Phenomena": 1, "Education, Politics, and Culture Studies": 1, "German Security and Defense Policies": 1, "Maritime Transport Emissions and Efficiency": 1, "Evaluation of Teaching Practices": 1, "Education and Critical Thinking Development": 1, "Disaster Management and Resilience": 1, "Regional resilience and development": 1, "Conflict Management and Negotiation": 3, "Ethics and Social Impacts of AI": 1, "German Social Sciences and History": 1, "Philosophy, Science, and History": 1, "Crime, Deviance, and Social Control": 2, "Research in Social Sciences": 6, "Mental Health Research Topics": 1, "Sound Studies and Aurality": 1, "Cognitive Computing and Networks": 1, "Social Capital and Networks": 2, "South Asian Cinema and Culture": 2, "Media Discourse and Social  Analysis": 1, "Migration, Racism, and Human Rights": 3, "Borges, Kipling, and Jewish Identity": 1, "Hispanic-African Historical Relations": 1, "Consumer Behavior in Brand Consumption and Identification": 1, "Wine Industry and Tourism": 1, "Legal Cases and Commentary": 2, "Philosophical and Historical Studies": 2, "Polish-Jewish Holocaust Memory Studies": 1, "Language and Culture": 2, "Publishing and Scholarly Communication": 2, "Chronic Lymphocytic Leukemia Research": 1, "Immune Cell Function and Interaction": 1, "Monoclonal and Polyclonal Antibodies Research": 1, "Labor Movements and Unions": 4, "Marxism and Critical Theory": 1, "Education, Law, and Society": 2, "Employment and Welfare Studies": 1, "Cultural Insights and Digital Impacts": 1, "Historical and Scientific Studies": 1, "Diverse Cultural and Historical Studies": 1, "American and British Literature Analysis": 1, "American Literature and Culture": 1, "Cultural History and Identity Formation": 1, "Multidisciplinary Warburg-centric Studies": 2, "Climate Change Communication and Perception": 1, "History and advancements in chemistry": 1, "Rousseau and Enlightenment Thought": 1, "Cultural and Communication Design Research": 1, "Global Education and Multiculturalism": 1, "Global Educational Policies and Reforms": 1, "Minority Rights and Languages": 1, "Environmental Sustainability in Business": 1, "Land Use and Management": 4, "Constraint Satisfaction and Optimization": 1, "Geological Modeling and Analysis": 2, "Spatial Cognition and Navigation": 1, "Shakespeare, Adaptation, and Literary Criticism": 1, "Cinema and Media Studies": 3, "Academic Publishing and Open Access": 2, "Academic Writing and Publishing": 2, "Social Media in Health Education": 1, "Modern American Literature Studies": 1, "Historical and Architectural Studies": 2, "French Urban and Social Studies": 1, "Finance, Markets, and Regulation": 1, "Religion, Theology, History, Judaism, Christianity": 1, "Philosophical Thought and Analysis": 1, "Ethics and bioethics in healthcare": 1, "Economic and Social Development": 1, "Bacillus and Francisella bacterial research": 1, "Astronomical and nuclear sciences": 2, "Sports Analytics and Performance": 1, "Ethics in medical practice": 1, "Historical Education and Society": 1, "Linguistic and Cultural Studies": 1, "Global Financial Regulation and Crises": 1, "Social impacts of COVID-19": 1, "Social and Educational Sciences": 2, "Ukrainian Cultural and Linguistic Studies": 1, "Classical Antiquity Studies": 3, "Risk Management in Financial Firms": 1, "Socio-economic Development and Sustainability": 1, "Banking, Crisis Management, COVID-19 Impact": 1, "Reservoir Engineering and Simulation Methods": 1, "Values and Moral Education": 1, "Peace and Human Rights Education": 1, "Migration, Identity, and Health": 1, "New Caledonia Indigenous Studies": 1, "Interpreting and Communication in Healthcare": 1, "Globalization and Economic Impact": 1, "Death, Funerary Practices, and Mourning": 1, "Literary and Cultural Studies": 2, "Archaeology and Cultural Heritage": 1, "Education in Diverse Contexts": 2, "Digitalization and Economic Development in Agriculture": 1, "Digital Transformation in Law": 1, "Visual Culture and Art Theory": 1, "Global trade, sustainability, and social impact": 1, "Ecocriticism and Environmental Literature": 1, "Polish Law and Legal System": 3, "Social Issues and Policies in Latin America": 1, "Employee Performance and Management": 1, "Brazilian Legal Issues": 1, "Comparative constitutional jurisprudence studies": 1, "Resilience and Mental Health": 1, "Law and Political Science": 1, "Game Theory and Applications": 1, "Earthquake and Disaster Impact Studies": 2, "Environmental and Industrial Safety": 1, "Reformation and Early Modern Christianity": 7, "Dispute Resolution and Class Actions": 1, "Turkish Literature and Culture": 1, "Economic and Social Issues": 1, "Network Security and Intrusion Detection": 1, "Sex work and related issues": 1, "Romani and Gypsy Studies": 1, "African studies and sociopolitical issues": 1, "Conflict of Laws and Jurisdiction": 1, "Legal Systems and Judicial Processes": 2, "Historical and Literary Analyses": 1, "Educational Leadership and Practices": 1, "Nursing Education, Practice, and Leadership": 1, "Anarchism and Radical Politics": 1, "Economic Analysis and Policy": 1, "Graphite, nuclear technology, radiation studies": 1, "Nuclear reactor physics and engineering": 1, "Public Administration and Political Analysis": 1, "Creative Drama in Education": 1, "Law, Rights, and Freedoms": 2, "Legal Issues in Education": 1, "Criminal Law and Evidence": 2, "Taxation and Legal Issues": 1, "Ancient Mediterranean Archaeology and History": 1, "Historical Geography and Cartography": 2, "Geology and Paleoclimatology Research": 2, "Mathematics Education and Programs": 1, "Jungian Analytical Psychology": 1, "Art, Technology, and Culture": 1, "Medicine and Dermatology Studies History": 1, "Historical and Religious Studies of Rome": 1, "Urban Design and Spatial Analysis": 1, "Income, Poverty, and Inequality": 1, "Socioeconomics of Resources and Conservation": 1, "Archaeology and ancient environmental studies": 1, "Geophysics and Gravity Measurements": 1, "Political Developments and Conflicts": 2, "ICT Impact and Policies": 1, "Renewable Energy and Sustainability": 1, "African Sexualities and LGBTQ+ Issues": 1, "Organizational Strategy and Culture": 1, "Agricultural Economics and Policy": 1, "Immigration and Intercultural Education": 1, "Nationalism and Cultural Identity": 1, "Rural and Ethnic Education": 1, "Science and Science Education": 1, "German Literature and Culture Studies": 1, "Knowledge Management and Technology": 1, "Latin American Urban Studies": 1, "Regional Development and Innovation": 1, "Urban Transport and Accessibility": 1, "Migration, Health, Geopolitics, Historical Geography": 1, "Youth Substance Use and School Attendance": 1, "Mental Health Treatment and Access": 1, "Psychological Treatments and Assessments": 1, "Wittgensteinian philosophy and applications": 1, "Philosophy and Theoretical Science": 1, "Heart Rate Variability and Autonomic Control": 1, "Optical Imaging and Spectroscopy Techniques": 1, "History of Emotions Research": 1, "Energy and Environment Impacts": 1, "Liver physiology and pathology": 1, "Tissue Engineering and Regenerative Medicine": 1, "3D Printing in Biomedical Research": 1, "Heavy Metals in Plants": 1, "Soil and Environmental Studies": 1, "Silymarin and Mushroom Poisoning": 1, "Higher Education and Teaching Methods": 1, "Educational Research and Pedagogy": 1, "Local Government Finance and Decentralization": 1, "Combustion and Detonation Processes": 1, "Computational Fluid Dynamics and Aerodynamics": 1, "Gas Dynamics and Kinetic Theory": 1, "Mathematics, Computing, and Information Processing": 1, "Digital Humanities and Scholarship": 1, "Environmental Education and Sustainability": 1, "Diverse Perspectives in Modern Studies": 1, "Sustainability and Climate Change Governance": 1, "History of Education in Spain": 1, "Postcolonial and Cultural Literary Studies": 1, "Comics and Graphic Narratives": 1, "Linguistic research and analysis": 1, "Philosophical and Cultural Analysis": 1, "Political Theory and Democracy": 1}, "sources": {"Palgrave Macmillan UK eBooks": 73, "MGIMO Review of International Relations": 58, "Russia in Global Affairs": 51, "SHILAP Revista de lepidopterolog\u00eda": 48, "SSRN Electronic Journal": 47, "Archive of European Integration (AEI) (University of Pittsburgh)": 47, "Duo Research Archive (University of Oslo)": 46, "Slavic Review": 45, "DergiPark (Istanbul University)": 39, "Europe Asia Studies": 37, "Connections The Quarterly Journal": 37, "Calhoun: The Naval Postgraduate School Institutional Archive (Naval Postgraduate School)": 34, "Baltic Region": 32, "DSpace repository (University of Tartu)": 32, "International Affairs": 31}, "institutions": {"Moscow State Institute of International Relations": 171, "National Research University Higher School of Economics": 123, "Yale University": 93, "University of Cambridge": 80, "Peoples' Friendship University of Russia": 78, "University of Miami": 76, "University of California, Los Angeles": 75, "Virginia Tech": 71, "University of Central Florida": 69, "University of Chicago": 69, "Bridge University": 68, "Chicago Kent College of Law": 67, "nView Medical (United States)": 67, "Florida State University": 67, "Lomonosov Moscow State University": 54}, "countries": {"US": 1774, "RU": 1193, "GB": 457, "PL": 324, "TR": 238, "UA": 208, "DE": 159, "ID": 116, "CZ": 104, "CN": 101, "GE": 83, "SE": 75, "FI": 73, "NO": 71, "ES": 68}, "research_themes": {"NATO & Europe": 2605, "Sanctions & Economy": 1689, "Soviet Legacy": 1660, "Ukraine Conflict": 1354, "China Relations": 1347, "Nuclear & Military": 1342, "Democracy & Governance": 1208, "Energy & Resources": 826, "Information & Media": 819, "Regional Conflicts": 689}, "top_cited": [{"title": "Bringing Transnational Relations Back In", "year": 1995, "citations": 1067, "doi": "https://doi.org/10.1017/cbo9780511598760", "authors": "Thomas Risse, Thomas Risse, Thomas Risse"}, {"title": "Status Seekers: Chinese and Russian Responses to U.S. Primacy", "year": 2010, "citations": 502, "doi": "https://doi.org/10.1162/isec.2010.34.4.63", "authors": "Deborah Welch Larson, Alexei Shevchenko"}, {"title": "Fake News", "year": 2016, "citations": 285, "doi": "https://doi.org/10.1080/17512786.2016.1163237", "authors": "Irina Khaldarova, Mervi Pantti"}, {"title": "Russian foreign policy: the return of great power politics", "year": 2009, "citations": 264, "doi": "https://doi.org/10.5860/choice.47-1675", "authors": "Jeffrey Mankoff"}, {"title": "Russia and the Idea of Europe: A Study in Identity and International Relations", "year": 1995, "citations": 196, "doi": null, "authors": "\u0130ver B. Neumann"}, {"title": "The Distribution of Identity and the Future of International Order: China's Hegemonic Prospects", "year": 2018, "citations": 155, "doi": "https://doi.org/10.1017/s0020818318000267", "authors": "Bentley B. Allan, Srdjan Vucetic, Ted Hopf"}, {"title": "Russia and Syria: explaining alignment with a regime in crisis", "year": 2013, "citations": 149, "doi": "https://doi.org/10.1111/1468-2346.12046", "authors": "Roy Allison"}, {"title": "Networked Authoritarianism and the Geopolitics of Information: Understanding Russian Internet Policy", "year": 2017, "citations": 139, "doi": "https://doi.org/10.17645/mac.v5i1.808", "authors": "Nathalie Mar\u00e9chal"}, {"title": "Russia and \u2018hybrid warfare\u2019", "year": 2016, "citations": 138, "doi": "https://doi.org/10.1080/13569775.2016.1201316", "authors": "Bettina Renz"}, {"title": "If not by tanks, then by banks? The role of soft power in Putin's foreign policy", "year": 2006, "citations": 134, "doi": "https://doi.org/10.1080/09668130600926355", "authors": "Andre\u00ef P. Tsygankov"}, {"title": "Russia\u2019s strategy for influence through public diplomacy and active measures: the Swedish case", "year": 2017, "citations": 134, "doi": "https://doi.org/10.1080/01402390.2016.1273830", "authors": "Martin Kragh, Sebastian \u00c5sberg"}, {"title": "The Rebuilding of Greater Russia: Putin's Foreign Policy Towards the CIS Countries", "year": 2007, "citations": 130, "doi": null, "authors": "Bertil Nygren"}, {"title": "Authoritarian International Law?", "year": 2020, "citations": 127, "doi": "https://doi.org/10.1017/ajil.2020.3", "authors": "Tom Ginsburg"}, {"title": "Russia and the new world disorder", "year": 2016, "citations": 124, "doi": "https://doi.org/10.5860/choice.194169", "authors": ""}, {"title": "Less Annotating, More Classifying: Addressing the Data Scarcity Issue of Supervised Machine Learning with Deep Transfer Learning and BERT-NLI", "year": 2023, "citations": 124, "doi": "https://doi.org/10.1017/pan.2023.20", "authors": "Moritz Laurer, Wouter van Atteveldt, Andreu Casas"}, {"title": "Understanding Russia's Soft Power Strategy", "year": 2015, "citations": 123, "doi": "https://doi.org/10.1111/1467-9256.12109", "authors": "Alexander Sergunin, Leonid A. Karabeshkin"}, {"title": "Conservative soft power: liberal soft power bias and the \u2018hidden\u2019 attraction of Russia", "year": 2017, "citations": 122, "doi": "https://doi.org/10.1057/s41268-017-0100-6", "authors": "Vincent Charles Keating, Katarzyna Kaczmarska"}, {"title": "Putin's propaganda machine: soft power and Russian foreign policy", "year": 2016, "citations": 121, "doi": "https://doi.org/10.5860/choice.195918", "authors": ""}, {"title": "Framing and Agenda-setting in Russian News: a Computational Analysis of Intricate Political Strategies", "year": 2018, "citations": 121, "doi": "https://doi.org/10.18653/v1/d18-1393", "authors": "Anjalie Field, Doron Kliger, Shuly Wintner"}, {"title": "Russia as a great power, 1815\u20132007", "year": 2008, "citations": 120, "doi": "https://doi.org/10.1057/jird.2008.7", "authors": "\u0130ver B. Neumann"}], "search_location": {"title_abstract": 2630, "fulltext_only": 3699}, "oa_types": {"closed": 1813, "bronze": 734, "green": 1162, "hybrid": 500, "diamond": 1646, "gold": 474}, "languages": {"English": 5396, "French": 35, "CEB": 1, "Turkish": 88, "Spanish": 66, "Russian": 181, "Italian": 6, "ID": 18, "HR": 7, "CS": 17, "Arabic": 37, "Korean": 9, "LT": 9, "German": 59, "Polish": 59, "Ukrainian": 28, "Japanese": 6, "MK": 5, "KA": 1, "FI": 6, "Portuguese": 53, "SV": 14, "SK": 3, "HY": 1, "RO": 5, "HU": 14, "FA": 3, "NO": 9, "SR": 6, "ET": 3, "Dutch": 2, "SH": 3, "SL": 3, "TH": 4, "DA": 2, "LV": 3, "MN": 1, "BS": 1, "EL": 1, "AF": 1, "KN": 1, "BG": 2, "AZ": 1}, "taxonomy": {"domains": {"Social Sciences": 13888, "Physical Sciences": 844, "Health Sciences": 127, "Life Sciences": 30}, "fields": {"Social Sciences": 12221, "Economics, Econometrics and Finance": 977, "Energy": 475, "Arts and Humanities": 391, "Business, Management and Accounting": 122, "Engineering": 120, "Environmental Science": 118, "Decision Sciences": 113, "Health Professions": 98, "Computer Science": 72, "Psychology": 64, "Earth and Planetary Sciences": 31, "Medicine": 28, "Agricultural and Biological Sciences": 21, "Physics and Astronomy": 18}, "subfields": {"Political Science and International Relations": 8830, "Sociology and Political Science": 2240, "Economics and Econometrics": 756, "General Energy": 438, "Archeology": 235, "General Economics, Econometrics and Finance": 201, "History": 176, "Development": 142, "Cultural Studies": 138, "Communication": 109, "Demography": 105, "General Health Professions": 97, "Strategy and Management": 95, "Transportation": 86, "Aerospace Engineering": 83}}};
+
+// Modal help content
+const helpContent = {
+    'search-location': {
+        title: 'Search Term Location Analysis',
+        body: `<p>This chart shows where the search terms ("Russian foreign policy", "Russian defense policy", "Russian security policy") appear in the papers.</p>
+        <ul>
+            <li><strong>Title/Abstract (44%):</strong> Papers explicitly focused on Russian policy - these terms appear in the most visible parts</li>
+            <li><strong>Full-text Only (56%):</strong> Papers that discuss Russian policy substantively but don't advertise it in title/abstract - often comparative studies or papers with broader focus</li>
+        </ul>
+        <p><strong>Key Insight:</strong> Over half the relevant literature would be missed by title/abstract searches alone!</p>`
+    },
+    'oa-types': {
+        title: 'Open Access Types Explained',
+        body: `<p>Open Access (OA) status determines how freely available papers are. Total OA rate: <strong>71.4%</strong></p>
+        <ul>
+            <li><strong>🟡 Gold OA (7.5%):</strong> Published in fully OA journals; author pays Article Processing Charges (APCs)</li>
+            <li><strong>💎 Diamond OA (26%):</strong> Published in OA journals with NO fees; funded by institutions - best model for equity</li>
+            <li><strong>🟢 Green OA (18.4%):</strong> Self-archived versions in repositories; may have embargo periods</li>
+            <li><strong>🔵 Hybrid OA (7.9%):</strong> Individual articles made open in subscription journals; most expensive per article</li>
+            <li><strong>🟤 Bronze OA (11.6%):</strong> Free to read but no reuse license; publisher can revoke access</li>
+            <li><strong>🔒 Closed (28.6%):</strong> Traditional paywall; requires subscription or purchase</li>
+        </ul>
+        <p><strong>For Researchers:</strong> Start with the 71% OA papers for immediate full-text access!</p>`
+    },
+    'languages': {
+        title: 'Language Distribution',
+        body: `<p>Language diversity in Russian policy research reflects global perspectives.</p>
+        <ul>
+            <li><strong>English dominance:</strong> Expected for international academic discourse</li>
+            <li><strong>Russian presence:</strong> Important for accessing local perspectives and primary sources</li>
+            <li><strong>Other languages:</strong> European languages reflect regional research communities</li>
+        </ul>
+        <p><strong>Research Tip:</strong> Don't ignore non-English sources - they often contain unique insights and data not available in English literature.</p>`
+    },
+    'timeline': {
+        title: 'Temporal Patterns in Research',
+        body: `<p>Publication timeline reveals how academic attention to Russian policy correlates with world events.</p>
+        <ul>
+            <li><strong>2014 spike:</strong> Crimea annexation and Eastern Ukraine conflict</li>
+            <li><strong>2022-2023 peak:</strong> Full-scale invasion of Ukraine</li>
+            <li><strong>Sustained growth 2019-2023:</strong> Over 400 papers/year indicating heightened concern</li>
+            <li><strong>Historical depth:</strong> Papers from 1916 show century-long academic interest</li>
+        </ul>
+        <p><strong>Pattern:</strong> Academic research lags 6-12 months behind major events as scholars analyze and publish findings.</p>`
+    },
+    'domains': {
+        title: 'OpenAlex Research Domains',
+        body: `<p>Highest-level classification in OpenAlex taxonomy. Shows the broad disciplinary distribution.</p>
+        <ul>
+            <li><strong>Social Sciences:</strong> Dominant domain including political science, IR, economics</li>
+            <li><strong>Physical Sciences:</strong> Includes computer science for computational analyses</li>
+            <li><strong>Health Sciences:</strong> May include public health aspects of policy</li>
+            <li><strong>Life Sciences:</strong> Environmental and ecological implications</li>
+        </ul>
+        <p><strong>Interdisciplinary Nature:</strong> Russian policy research spans multiple domains, reflecting its complex impacts.</p>`
+    },
+    'fields': {
+        title: 'Research Fields Distribution',
+        body: `<p>Mid-level classification showing specific academic fields studying Russian policy.</p>
+        <ul>
+            <li><strong>Social Sciences:</strong> Core field for policy research</li>
+            <li><strong>Computer Science:</strong> Computational methods, data analysis, cyber aspects</li>
+            <li><strong>Economics:</strong> Economic impacts, sanctions, trade</li>
+            <li><strong>Decision Sciences:</strong> Strategic analysis, game theory</li>
+        </ul>
+        <p>This distribution shows the methodological diversity in approaching Russian policy studies.</p>`
+    },
+    'subfields': {
+        title: 'Research Subfields',
+        body: `<p>Detailed classification showing specific research areas and methodologies.</p>
+        <p>Common subfields include:</p>
+        <ul>
+            <li>International Relations theory</li>
+            <li>Security Studies</li>
+            <li>Political Economy</li>
+            <li>Area Studies</li>
+            <li>Computational Social Science</li>
+        </ul>
+        <p>The variety of subfields demonstrates the multifaceted nature of Russian policy research.</p>`
+    },
+    'topics': {
+        title: 'OpenAlex Topic Classification',
+        body: `<p>OpenAlex automatically classifies papers into detailed research topics using machine learning.</p>
+        <p>Top topics reflect:</p>
+        <ul>
+            <li><strong>Historical continuity:</strong> Soviet and post-Soviet studies</li>
+            <li><strong>Security focus:</strong> Military and geopolitical strategies</li>
+            <li><strong>Economic dimensions:</strong> Energy, sanctions, trade</li>
+            <li><strong>Regional dynamics:</strong> European, Arctic, and Asian contexts</li>
+        </ul>
+        <p>These topics are algorithmically determined based on paper content, citations, and co-authorship patterns.</p>`
+    },
+    'themes': {
+        title: 'Thematic Analysis Methodology',
+        body: `<p>Themes identified through keyword analysis of titles and abstracts.</p>
+        <p><strong>Method:</strong> Searched for specific keyword clusters in paper text:</p>
+        <ul>
+            <li><strong>Ukraine Conflict:</strong> "ukraine", "crimea", "donbas", "invasion"</li>
+            <li><strong>Energy:</strong> "gas", "oil", "pipeline", "gazprom"</li>
+            <li><strong>NATO/Europe:</strong> "nato", "eu", "expansion", "alliance"</li>
+            <li><strong>Nuclear/Military:</strong> "nuclear", "defense", "weapons"</li>
+            <li><strong>Sanctions:</strong> "sanctions", "economy", "trade"</li>
+        </ul>
+        <p>Papers can belong to multiple themes, showing research intersections.</p>`
+    },
+    'countries': {
+        title: 'Geographic Research Distribution',
+        body: `<p>Countries ranked by institutional affiliations of authors.</p>
+        <ul>
+            <li><strong>US dominance:</strong> Reflects large academic sector and strategic interest</li>
+            <li><strong>European presence:</strong> Geographic proximity and direct policy impacts</li>
+            <li><strong>Russian representation:</strong> Local scholarship and insider perspectives</li>
+            <li><strong>Chinese interest:</strong> Growing attention to Russian relations</li>
+        </ul>
+        <p><strong>Bias Alert:</strong> English-language bias in OpenAlex may underrepresent non-Western scholarship.</p>`
+    },
+    'institutions': {
+        title: 'Institutional Research Centers',
+        body: `<p>Top institutions producing Russian policy research.</p>
+        <p>Categories include:</p>
+        <ul>
+            <li><strong>Think Tanks:</strong> Policy-oriented research institutes</li>
+            <li><strong>Universities:</strong> Academic research centers</li>
+            <li><strong>Government Institutes:</strong> Official research bodies</li>
+            <li><strong>International Organizations:</strong> Multilateral research</li>
+        </ul>
+        <p>Institutional diversity ensures multiple perspectives on Russian policy.</p>`
+    },
+    'citations': {
+        title: 'Citation Impact Analysis',
+        body: `<p>Most cited papers shape the field's understanding and debates.</p>
+        <p><strong>Citation patterns show:</strong></p>
+        <ul>
+            <li>Papers with terms in titles/abstracts get 2-3x more citations</li>
+            <li>Older papers accumulate more citations over time</li>
+            <li>Theoretical contributions often outperform empirical studies</li>
+            <li>Papers published during crises get immediate attention</li>
+        </ul>
+        <p><strong>Average citations:</strong> 4.3 per paper (relatively low, indicating a fast-moving field)</p>`
+    },
+    'sources': {
+        title: 'Publication Venue Analysis',
+        body: `<p>Where Russian policy research gets published reveals field characteristics.</p>
+        <ul>
+            <li><strong>Academic Journals:</strong> Peer-reviewed research</li>
+            <li><strong>Book Publishers:</strong> Long-form analysis (Palgrave, Routledge)</li>
+            <li><strong>Regional Journals:</strong> Local perspectives (MGIMO Review)</li>
+            <li><strong>Repositories:</strong> Pre-prints and working papers (SSRN)</li>
+        </ul>
+        <p><strong>Mix indicates:</strong> Combination of rapid-response analysis and deep scholarly work.</p>`
+    }
+};
+
+// Modal functions
+function showHelp(key) {
+    const overlay = document.getElementById('modal-overlay');
+    const title = document.getElementById('modal-title');
+    const body = document.getElementById('modal-body');
+
+    if (helpContent[key]) {
+        title.innerHTML = helpContent[key].title;
+        body.innerHTML = helpContent[key].body;
+        overlay.style.display = 'flex';
+    }
+}
+
+function closeModal() {
+    document.getElementById('modal-overlay').style.display = 'none';
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeModal();
+    }
+});
+
+// Color schemes
+// Tab20 colors - arranged to maximize distinction between adjacent colors
+const tab20 = [
+    '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+    '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
+    '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5',
+    '#c49c94', '#f7b6d2', '#c7c7c7', '#dbdb8d', '#9edae5'
+];
+
+// Reorder tab20 to maximize contrast between adjacent items
+const tab20Distinct = [
+    tab20[0], tab20[5], tab20[2], tab20[7], tab20[4],  // Dark blue, brown, green, gray, purple
+    tab20[1], tab20[9], tab20[3], tab20[8], tab20[6],  // Orange, cyan, red, lime, pink
+    tab20[10], tab20[15], tab20[12], tab20[17], tab20[14], // Light blue, light brown, light green, light gray, light purple
+    tab20[11], tab20[19], tab20[13], tab20[18], tab20[16]  // Light orange, light cyan, light red, light lime, light pink
+];
+
+const colors = {
+    primary: tab20Distinct.slice(0, 5),
+    secondary: tab20Distinct.slice(5, 10),
+    categorical: tab20Distinct.slice(0, 8),
+    domains: tab20Distinct.slice(0, 4),
+    gradient: tab20Distinct
+};
+
+const layout = {
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: '#f8fafc', size: 12 },
+    margin: { t: 30, b: 50, l: 50, r: 30 },
+    xaxis: {
+        gridcolor: '#334155',
+        tickfont: { size: 10 },
+        tickangle: -45
+    },
+    yaxis: {
+        gridcolor: '#334155',
+        tickfont: { size: 10 }
+    },
+    hoverlabel: {
+        bgcolor: '#1e293b',
+        bordercolor: '#ef4444',
+        font: { color: '#f8fafc' }
+    }
+};
+
+const config = { responsive: true, displayModeBar: false };
+
+// Search location pie chart
+Plotly.newPlot('search-location', [{
+    values: [data.search_location.title_abstract, data.search_location.fulltext_only],
+    labels: ['Title/Abstract', 'Full-text Only'],
+    type: 'pie',
+    marker: { colors: colors.primary },
+    textinfo: 'label+percent',
+    hole: 0.4
+}], {...layout, showlegend: true}, config);
+
+// OA types pie chart
+const oaData = Object.entries(data.oa_types);
+Plotly.newPlot('oa-status', [{
+    values: oaData.map(d => d[1]),
+    labels: oaData.map(d => d[0].charAt(0).toUpperCase() + d[0].slice(1)),
+    type: 'pie',
+    marker: { colors: colors.categorical },
+    textinfo: 'label+percent'
+}], {...layout, showlegend: true}, config);
+
+// Languages bar chart
+const langData = Object.entries(data.languages).slice(0, 10);
+Plotly.newPlot('languages-chart', [{
+    x: langData.map(d => d[0]),
+    y: langData.map(d => d[1]),
+    type: 'bar',
+    marker: {
+        color: langData.map((d, i) => colors.gradient[i % colors.gradient.length])
+    },
+    text: langData.map(d => d[1]),
+    textposition: 'auto'
+}], {
+    ...layout,
+    yaxis: { ...layout.yaxis, title: 'Number of Papers' },
+    xaxis: { ...layout.xaxis, tickangle: -45 }
+}, config);
+
+// Timeline
+const years = Object.keys(data.temporal).map(Number);
+const counts = Object.values(data.temporal);
+Plotly.newPlot('timeline', [{
+    x: years,
+    y: counts,
+    type: 'scatter',
+    mode: 'lines+markers',
+    fill: 'tozeroy',
+    line: { color: tab20Distinct[0], width: 3 },
+    marker: { size: 6, color: tab20Distinct[0] }
+}], {
+    ...layout,
+    xaxis: { ...layout.xaxis, title: 'Year', tickangle: 0 },
+    yaxis: { ...layout.yaxis, title: 'Number of Papers' },
+    hovertemplate: '<b>%{x}</b><br>Papers: %{y}<extra></extra>'
+}, config);
+
+// Domains chart
+const domainsData = Object.entries(data.taxonomy.domains);
+Plotly.newPlot('domains-chart', [{
+    values: domainsData.map(d => d[1]),
+    labels: domainsData.map(d => d[0]),
+    type: 'pie',
+    marker: { colors: colors.domains },
+    textinfo: 'label+percent',
+    hole: 0.3
+}], {...layout, showlegend: true}, config);
+
+// Fields chart
+const fieldsData = Object.entries(data.taxonomy.fields).slice(0, 10);
+Plotly.newPlot('fields-chart', [{
+    x: fieldsData.map(d => d[1]),
+    y: fieldsData.map(d => d[0]),
+    type: 'bar',
+    orientation: 'h',
+    marker: { color: tab20Distinct[1] }
+}], {
+    ...layout,
+    xaxis: { ...layout.xaxis, title: 'Number of Papers' },
+    margin: { ...layout.margin, l: 200 }
+}, config);
+
+// Subfields chart
+const subfieldsData = Object.entries(data.taxonomy.subfields).slice(0, 15);
+Plotly.newPlot('subfields-chart', [{
+    x: subfieldsData.map(d => d[0]),
+    y: subfieldsData.map(d => d[1]),
+    type: 'bar',
+    marker: { color: tab20Distinct }
+}], {
+    ...layout,
+    yaxis: { ...layout.yaxis, title: 'Number of Papers' },
+    xaxis: { ...layout.xaxis, tickangle: -45 },
+    margin: { ...layout.margin, b: 150 }
+}, config);
+
+// Topics chart - use distinct colors for each bar
+const topicsData = Object.entries(data.topics).slice(0, 10);
+Plotly.newPlot('topics-chart', [{
+    x: topicsData.map(d => d[1]),
+    y: topicsData.map(d => d[0]),
+    type: 'bar',
+    orientation: 'h',
+    marker: {
+        color: topicsData.map((_, i) => tab20Distinct[i % tab20Distinct.length])
+    }
+}], {
+    ...layout,
+    xaxis: { ...layout.xaxis, title: 'Number of Papers' },
+    margin: { ...layout.margin, l: 200 }
+}, config);
+
+// Themes chart - use distinct colors for each bar
+const themesData = Object.entries(data.research_themes).slice(0, 10);
+Plotly.newPlot('themes-chart', [{
+    x: themesData.map(d => d[1]),
+    y: themesData.map(d => d[0]),
+    type: 'bar',
+    orientation: 'h',
+    marker: {
+        color: themesData.map((_, i) => tab20Distinct[i % tab20Distinct.length])
+    }
+}], {
+    ...layout,
+    xaxis: { ...layout.xaxis, title: 'Number of Papers' },
+    margin: { ...layout.margin, l: 150 }
+}, config);
+
+// Countries chart
+const countriesData = Object.entries(data.countries).slice(0, 15);
+Plotly.newPlot('countries-chart', [{
+    x: countriesData.map(d => d[0]),
+    y: countriesData.map(d => d[1]),
+    type: 'bar',
+    marker: { color: tab20Distinct[4] }
+}], {
+    ...layout,
+    yaxis: { ...layout.yaxis, title: 'Number of Papers' }
+}, config);
+
+// Institutions chart
+const instData = Object.entries(data.institutions).slice(0, 10);
+Plotly.newPlot('institutions-chart', [{
+    x: instData.map(d => d[1]),
+    y: instData.map(d => d[0]),
+    type: 'bar',
+    orientation: 'h',
+    marker: { color: tab20Distinct[5] }
+}], {
+    ...layout,
+    xaxis: { ...layout.xaxis, title: 'Number of Papers' },
+    margin: { ...layout.margin, l: 200 }
+}, config);
+
+// Sources chart
+const sourcesData = Object.entries(data.sources).slice(0, 15);
+Plotly.newPlot('sources-chart', [{
+    x: sourcesData.map(d => d[0]),
+    y: sourcesData.map(d => d[1]),
+    type: 'bar',
+    marker: { color: tab20Distinct[6] }
+}], {
+    ...layout,
+    yaxis: { ...layout.yaxis, title: 'Number of Papers' },
+    xaxis: { ...layout.xaxis, tickangle: -45 },
+    margin: { ...layout.margin, b: 150 }
+}, config);
+
+// Tab switching
+function showTab(tabId) {
+    document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.target.classList.add('active');
+
+    // Trigger Plotly resize for proper rendering
+    window.dispatchEvent(new Event('resize'));
+}
+</script>
+</body>
+</html>
